@@ -1,0 +1,15 @@
+tsources = bld.path.ant_glob('test*.cpp')
+if tsources and not bld.options.no_tests:
+    features='test cxx'
+    if bld.options.quell_tests:
+        features='cxx'
+
+    rpath = [bld.env["PREFIX"] + '/lib', bld.path.find_or_declare(bld.out_dir)]
+
+    for tmain in tsources:
+        bld.program(features = features,
+                    source = [tmain], target = tmain.name.replace('.cpp',''),
+                    ut_cwd = bld.path,
+                    install_path = None, rpath = rpath,
+                    includes = '../inc ../src ../build .',
+                    use = ['cogs','ERS'])

@@ -1,0 +1,8 @@
+*~
+build
+cut
+.lock*
+.waf*
+.envrc
+.direnv
+install

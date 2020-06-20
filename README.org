@@ -1,0 +1,50 @@
+#+title: cogs - configuration object generation system
+
+This package provides the core services and facilities to define,
+produce and deliver configuration information to applications in a
+flexible and coordinated manner.  The core of cogs consists of the
+following elements:
+
+- object schema :: using [[https://brettviren.github.io/moo/][moo]], cogs provides an abstract object schema
+  definition language which may compile to validating or generating
+  schema.
+
+- codegen :: again using moo, cogs provides code generation to produce
+  C++/Python classes matching object schema.
+
+- services :: cogs provides services for an application to receive a
+  sequence of configuration object in a manner that allows easy
+  dispatch to application internals.  The services follow an abstract
+  interface to allow different implementations to be swapped without
+  application changes.  File based services are included and services
+  using ZeroMQ or gRPC may be found in corresponding ~cogs-*~ packages.
+
+- components :: applications may simplify dispatch of configuration to
+  components by using cogs mixin classes which handle the
+  deserialization of configuration objects to appropriate native
+  (generated) types.
+
+- exceptions :: cogs follows an exception based error handling policy
+  and uses [[https://github.com/DUNE-DAQ/ers][ERS]] to report issues and logging.
+
+In C++ a configuration object is an instance of a ~cogs::object~ which
+is a [[https://github.com/nlohmann/json][~nlohmann::json~]] object.
+
+* Roadmap
+
+Near term
+
+- [X] initial package and build and install
+- [X] hook in ERS and ~nlohmann::json~
+- [X] abstract configuration stream class
+- [X] simple JSON file stream implementations
+- [X] configurable base hierarchy
+- [ ] port demo application and schema from moo/moc
+- [ ] port demo ~Makefile~ to ~wscript~
+
+Longer term
+ 
+- [ ] understand what CCM message passing will be (gRPC? ZeroMQ?)
+- [ ] develop a ~cogs::Stream~ to support it
+- [ ] integrate use of cogs into appfmk
+
