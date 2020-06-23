@@ -30,6 +30,10 @@ following elements:
 In C++ a configuration object is an instance of a ~cogs::object~ which
 is a [[https://github.com/nlohmann/json][~nlohmann::json~]] object.
 
+* Demo
+
+See the [[file:demo/README.org][demo]] for an example package that uses cogs.
+
 * Roadmap
 
 Near term
@@ -41,6 +45,7 @@ Near term
 - [X] configurable base hierarchy
 - [ ] port demo application and schema from moo/moc
 - [ ] port demo ~Makefile~ to ~wscript~
+- [ ] user documentation
 
 Longer term
  

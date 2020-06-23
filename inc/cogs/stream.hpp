@@ -28,7 +28,7 @@ namespace cogs {
     ///
     /// Support for MessagePack or Protobuf format and ZeroMQ message
     /// media may come later.
-    stream_p make_stream(const std::string& uri);
+    stream_p make_stream(std::string uri);
 
 
 }

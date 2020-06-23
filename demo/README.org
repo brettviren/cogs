@@ -1,0 +1,45 @@
+#+title: cogs demo
+
+This directory holds an example of using cogs.  It includes:
+
+- How to write a configuration schema in Jsonnet.
+- How to create a configuration stream file.
+- How to use a cogs stream from an application.
+- One way to use dispatch configuration to components.
+- How to develop component classes to receive fully typed configuration objects.
+
+* Prerequisites:
+
+This tooling is needed:
+
+- ~avrogencpp~ :: the Avro generator for C++
+- ~moo~ :: [[https://github.com/brettviren/moo]]
+
+* Demo framework
+
+The demo assumes an application is composed of two category of objects:
+
+- components :: instances of classes which may be found via names in
+  the configuration (implementation and instance names).
+
+- nodes :: a collection of /ports/ which components may use to exchange
+  messages with other components (potentially in other applications).
+
+* Configuration schema
+
+** Schema Levels
+
+*** Stream level
+
+The demo application interprets the cogs configuration stream as a
+paired sequence of configuration objects:
+
+- header :: an object of a fixed type which identifies a component
+- payload :: an object passed to the component identified by the header
+
+*** Component level
+
+Each component has its own configuration shema and corresponding C++
+struct.
+
+** 

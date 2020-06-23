@@ -69,7 +69,7 @@ struct JsonArray : public FileStream, virtual public cogs::Stream {
 };
 
 
-cogs::stream_p cogs::make_stream(const std::string& uri)
+cogs::stream_p cogs::make_stream(std::string uri)
 {
     // This factory is hand crafted for now.  Todo later is to make it
     // extensible.
