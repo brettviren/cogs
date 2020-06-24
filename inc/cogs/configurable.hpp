@@ -5,6 +5,7 @@
 #define COGS_CONFIGURABLE_HPP_SEEN
 
 #include "cogs/object.hpp"
+#include "cogs/issues.hpp"
 
 namespace cogs {
 
@@ -22,8 +23,17 @@ namespace cogs {
         virtual void configure(CfgObj&& cfgobj) = 0;
 
         void configure(object obj) {
-            // fixme: here we will instrument some ESR forwarding of failures.
-            configure(obj.get<CfgObj>());
+            CfgObj co;
+            try {
+                co = obj.get<CfgObj>();
+            }
+            catch (const cogs::object::type_error& pe) {
+                // fixme: how do I chain exceptins?
+                ERS_INFO("bad object: " << obj);
+                throw cogs::schema_error(ERS_HERE, pe.what());
+            }
+
+            configure(std::move(co));
         }
 
     };

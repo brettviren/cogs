@@ -74,8 +74,14 @@ cogs::stream_p cogs::make_stream(std::string uri)
     // This factory is hand crafted for now.  Todo later is to make it
     // extensible.
 
+    ERS_INFO("making stream for " << uri);
+
     auto dot = uri.find_last_of(".");
     auto sep = uri.find("://");
+
+    if (dot == std::string::npos or sep == std::string::npos) {
+        throw cogs::unsupported_uri(ERS_HERE, uri);
+    }
 
     std::string ext = uri.substr(dot+1);
     std::string scheme = "";

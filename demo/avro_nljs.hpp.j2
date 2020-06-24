@@ -2,7 +2,7 @@
 #define {{model.namespace|replace(".","_")|upper}}_{{model.name|upper}}_NLJS_HPP
 
 
-#include "json.hpp"
+#include "nlohmann/json.hpp"
 #include "{{model.name}}_avro.hpp"
 
 namespace {{ model.namespace }} {
