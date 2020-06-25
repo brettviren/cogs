@@ -8,16 +8,17 @@ function(schema) {
     local link = schema.record("Link", fields= [
         schema.field("linktype", "LinkType",
                 doc="The socket may bind or connect the link"),
-        
         schema.field("address", address, 
                 doc="The address to link to")
     ], doc="Describes how a single link is to be made"),
+
     local port = schema.record("Port", fields=[
         schema.field("ident", ident,
                 doc="Identify the port uniquely in th enode"),
         schema.field("links", schema.sequence("Link"), 
                 doc="Describe how this port should link to addresses"),
     ], doc="A port configuration object",),
+
     local comp = schema.record("Comp", fields=[
         schema.field("ident", ident, 
                 doc="Identify copmponent instance uniquely in the node"),
@@ -28,6 +29,7 @@ function(schema) {
         schema.field("config", schema.string(), 
                 doc="Per instance configuration string used by node")
     ], doc="An object used by the node to partly configure a component"),
+
     local node = schema.record("Node", fields=[
         schema.field("ident", ident,
                 doc="Idenfity the node instance"),

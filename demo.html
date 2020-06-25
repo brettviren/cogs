@@ -1,0 +1,1130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2020-06-25 Thu 15:19 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>cogs ⚙ demo</title>
+<meta name="generator" content="Org mode" />
+<meta name="author" content="Brett Viren" />
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #eee;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: visible;
+    padding-top: 1.2em;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    background-color: white;
+    top: -10px;
+    right: 10px;
+    padding: 3px;
+    border: 1px solid black;
+  }
+  pre.src:hover:before { display: inline;}
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-C:before { content: 'C'; }
+  /* pre.src-C++ doesn't work in CSS */
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-hledger:before { content: 'hledger'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'Javascript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .equation-container {
+    display: table;
+    text-align: center;
+    width: 100%;
+  }
+  .equation {
+    vertical-align: middle;
+  }
+  .equation-label {
+    display: table-cell;
+    text-align: right;
+    vertical-align: middle;
+  }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { width: 90%; }
+  /*]]>*/-->
+</style>
+<link rel="stylesheet" type="text/css" href="export/styles/darksun/css/htmlize.css"/>
+<link rel="stylesheet" type="text/css" href="export/styles/darksun/css/darksun.css"/>
+<link rel="stylesheet" type="text/css" href="export/styles/darksun/css/hideshow.css"/>
+<script type="text/javascript" src="export/styles/darksun/js/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="export/styles/darksun/js/jquery-ui-1.10.2.min.js"></script>
+<script type="text/javascript" src="export/styles/darksun/js/jquery.localscroll-min.js"></script>
+<script type="text/javascript" src="export/styles/darksun/js/jquery.scrollTo-1.4.3.1-min.js"></script>
+<script type="text/javascript" src="export/styles/darksun/js/jquery.zclip.min.js"></script>
+<script type="text/javascript" src="export/styles/darksun/js/darksun.js"></script>
+<script type="text/javascript" src="export/styles/darksun/js/hideshow.js"></script>
+<script type="text/javascript" src="export/styles/lib/js/jquery.stickytableheaders.min.js"></script>
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2020 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">cogs ⚙ demo
+<br />
+<span class="subtitle">Demonstration of Configuration Object Generation System</span>
+</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#intro">Introduction</a></li>
+<li><a href="#build">Build</a>
+<ul>
+<li><a href="#prereq">Prerequisites</a></li>
+<li><a href="#compile">Compile</a></li>
+<li><a href="#regen">Regenerate</a></li>
+</ul>
+</li>
+<li><a href="#run">Run</a></li>
+<li><a href="#framework">Framework</a>
+<ul>
+<li><a href="#config-stream">Demo configuration stream</a></li>
+<li><a href="#dispatch-config">Dispatching configuration</a></li>
+<li><a href="#app-pattern">Non-trivial application patterns</a></li>
+</ul>
+</li>
+<li><a href="#codegen">Codegen</a>
+<ul>
+<li><a href="#gen-avro">C++ configuration types</a></li>
+<li><a href="#gen-nljs">Serialization code</a></li>
+<li><a href="#gen-cfg">Configuration stream</a></li>
+</ul>
+</li>
+<li><a href="#schema">Schema</a>
+<ul>
+<li><a href="#schema-layers">Layers</a></li>
+<li><a href="#base-schema">Base schema</a></li>
+<li><a href="#node-schema">Node schema</a></li>
+<li><a href="#org022a5e0">Configuration objects</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-intro" class="outline-2">
+<h2 id="intro">Introduction</h2>
+<div class="outline-text-2" id="text-intro">
+<p>
+The <a href="demo/">demo/</a> directory of the <a href="https://github.com/brettviren/cogs">cogs</a> repository holds a demonstration of
+one way to make use of <code>cogs</code>.  It includes:
+</p>
+
+<ul class="org-ul">
+<li>A mocked up framework, application and components.</li>
+<li>Schema to generate configuration classes.</li>
+<li>Example cogs configuration stream file.</li>
+<li>Simple tooling to run generation.</li>
+<li>Integration into <code>cogs</code> build system.</li>
+</ul>
+
+<p>
+This document describes how to build and run the demo.  It then gives
+a tour of the mocked framework to understand one possible way to allow
+<code>cogs</code> to be used.  It then gives details on the code generation steps
+and ends with a section that uses the demo's schema to illustrate how
+one may write their own.
+</p>
+</div>
+</div>
+
+<div id="outline-container-build" class="outline-2">
+<h2 id="build">Build</h2>
+<div class="outline-text-2" id="text-build">
+</div>
+
+<div id="outline-container-prereq" class="outline-3">
+<h3 id="prereq">Prerequisites</h3>
+<div class="outline-text-3" id="text-prereq">
+<p>
+In addition to what <code>cogs</code> requires, the demo requires:
+</p>
+
+<ul class="org-ul">
+<li>Avro CPO library and headers</li>
+</ul>
+
+<p>
+The generated demo code is committed to the repository.  To regenerate
+it requires additionally:
+</p>
+
+<ul class="org-ul">
+<li><code>avrogencpp</code> from Avro CPP package</li>
+
+<li><code>moo</code> Python program from <a href="https://github.com/brettviren/moo">moo</a>.</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-compile" class="outline-3">
+<h3 id="compile">Compile</h3>
+<div class="outline-text-3" id="text-compile">
+<p>
+With prerequisites satisfied, the demo builds with the <code>cogs</code> library.  For example:
+</p>
+
+<pre class="example">
+waf configure --prefix=$(pwd)/install --with-nljs=$HOME/opt/nljs --with-ers=$HOME/opt/ers --with-avro=$HOME/opt/avro
+waf install
+</pre>
+
+<p>
+You should be rewarded with:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-shell">./install/bin/cogs-demo || /bin/true
+</pre>
+</div>
+
+<pre class="example">
+2020-Jun-25 15:19:46,004 INFO [main(...) at unknown/demo/cogs-demo.cpp:12] usage: ./install/bin/cogs-demo &lt;uri&gt;
+</pre>
+</div>
+</div>
+
+<div id="outline-container-regen" class="outline-3">
+<h3 id="regen">Regenerate</h3>
+<div class="outline-text-3" id="text-regen">
+<p>
+The demo relies on generated code which is committed to the repository
+to reduce the build-time dependency of <code>cogs</code>.  If the additional
+prerequisites are satisfied, it may be regenerated:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-shell">./demo/generate.sh
+</pre>
+</div>
+
+<pre class="example">
+codegen in /home/bv/dev/cogs/demo
+Rendering nlohmann::json serialization code
+generating ./node_nljs.hpp:
+generating ./comp_nljs.hpp:
+generating ./head_nljs.hpp:
+Compiling Avro schema files
+Generating Avro code
+Validating configuration
+null
+null above means okay!
+Compiling configuration to cogs stream file
+</pre>
+
+<p>
+Below we will look more at what this script does.
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-run" class="outline-2">
+<h2 id="run">Run</h2>
+<div class="outline-text-2" id="text-run">
+<p>
+The demo provides a ready made <code>cogs</code> configuration stream file:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-shell">./install/bin/cogs-demo file://demo/demo-config.json | sed -e <span style="color: #e9b96e;">'s/^[^]]*\]//'</span>
+</pre>
+</div>
+
+<pre class="example">
+making stream for file://demo/demo-config.json
+main:		lookup: [demoSource]: "mycomp_source1"
+Source:	constructing
+main:		configure: [demoSource]: "mycomp_source1"
+Source:	configured to send 42 things
+main:		lookup: [demoNode]: "mynode_inst1"
+Node:		constructing
+main:		configure: [demoNode]: "mynode_inst1"
+Node:		mynode1
+Node:			making port: src
+Node:				link: bind'ing to: 
+Node:		lookin up component: mycomp_source1
+Node:			set port: src
+Source:	given port src
+main:		configuration stream done
+</pre>
+
+<p>
+The <code>sed</code> is simply to remove ERS output augmentation more appropriate
+to log files.  The output shows the configuration driving the
+construction of a "node" and a "component" (the "source") followed by
+their configuration.  When the node is configured it makes a (dummy)
+"port" and hands that C++ object to the source.  The next section on
+the demo framework describes these terms.  They are not inherent to
+<code>cogs</code> itself, just this demo but they represent typical code patterns.
+</p>
+</div>
+</div>
+
+<div id="outline-container-framework" class="outline-2">
+<h2 id="framework">Framework</h2>
+<div class="outline-text-2" id="text-framework">
+<p>
+It is possible to use <code>cogs</code> in a variety of patterns.  This demo
+illustrates one particular pattern such as may be used in an
+"application framework".  This pattern might be named something like
+"factory configuration".  It provides for a highly flexible,
+configuration-driven method for "aggregating" an application instance
+from a set of factory-instantiated components.  
+</p>
+</div>
+
+<div id="outline-container-config-stream" class="outline-3">
+<h3 id="config-stream">Demo configuration stream</h3>
+<div class="outline-text-3" id="text-config-stream">
+<p>
+The construction of the demo application and its configuration is
+driven by a <code>cogs</code> configuration stream.  The stream is composed of a
+sequence of pairs of configuration objects.  The first object in each
+pair co responds to a fixed type of <code>demo::ConfigurableBase</code>.  It
+provides information required to locate a component instance.  The
+second object in a pair corresponds to the configuration of that
+component instance.
+</p>
+
+<p>
+The stream is illustrated as:
+</p>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">component 1: <code>democfg::ConfigHeader</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">component 1: corresponding cfg object</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="org-left">&#x2026;</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="org-left">component N: <code>democfg::ConfigHeader</code></td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="org-left">component N: corresponding cfg object</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-dispatch-config" class="outline-3">
+<h3 id="dispatch-config">Dispatching configuration</h3>
+<div class="outline-text-3" id="text-dispatch-config">
+<p>
+The <code>ConfigHeader</code> provides two attributes:
+</p>
+
+<dl class="org-dl">
+<dt>implementation identifier</dt><dd>this is some name associated with a
+construction method for an implementation of <code>ConfigurableBase</code>.  This
+identifier is some simple name, likely derived from the component's
+C++ class name.</dd>
+
+<dt>instance identifier</dt><dd>multiple instances of one component may be
+constructed and this identifier keeps then distinct.</dd>
+</dl>
+
+<p>
+The main application walks the <code>cogs::Stream</code> using the <code>ConfigHeader</code> to
+retrieve an instance from the demo factory.  It then reads the next
+object from the <code>cogs::Stream</code> and passes it to the component's
+<code>configure()</code> method.  When the stream is exhausted the demo app simply
+exits.  A real app would of course go on to some other phase of
+execution.
+</p>
+</div>
+</div>
+
+<div id="outline-container-app-pattern" class="outline-3">
+<h3 id="app-pattern">Non-trivial application patterns</h3>
+<div class="outline-text-3" id="text-app-pattern">
+<p>
+The demo adds some non-trivial complexity by considering two types of
+configurable objects:
+</p>
+
+<dl class="org-dl">
+<dt>node</dt><dd>an object which has a collection of <i>ports</i> such may be
+associated with sockets.  The demo keeps ports as dummies but they
+represent some shared resource that is non-trivial to construct.</dd>
+
+<dt>components</dt><dd>an object which is configurable and may also want to
+use <i>ports</i>.  There is only a single component in the demo called a
+"source".  It represents some arbitrary "code execution unit" aka
+"user module".</dd>
+</dl>
+
+<p>
+The <b>node</b> is really just another component but it is called out special
+here as it uses the factory to locate instances of other components,
+as directed by its configuration and in order to deliver fully formed
+"ports".  A component must inherit from
+<code>demo::PortuserBase</code> and be listed in the node's configuration in order
+to receive its ports.
+</p>
+
+<p>
+This pattern is a mock of a real implementation found in <a href="https://github.com/brettviren/zio">ZIO</a> which
+uses a <a href="https://brettviren.github.io/zio/node.html">zio::Node</a> to create and link <a href="https://brettviren.github.io/zio/port.html">zio::Port</a> instances either
+directly or automatically with the help of a <a href="https://brettviren.github.io/zio/peer.html">zio::Peer</a> performing
+distributed network discovery.
+</p>
+</div>
+</div>
+</div>
+
+
+<div id="outline-container-codegen" class="outline-2">
+<h2 id="codegen">Codegen</h2>
+<div class="outline-text-2" id="text-codegen">
+<p>
+This section provides a tour of the types of code generation commands
+used to produce the bulk of the demo's code and configuration.  The
+tour focuses on the <a href="demo/generate.sh">generate.sh</a> script.  This script runs its commands
+from the <a href="demo/">demo/</a> directory and that should be taken into consideration
+when reading excerpts of the script which are shown below.
+</p>
+</div>
+
+<div id="outline-container-gen-avro" class="outline-3">
+<h3 id="gen-avro">C++ configuration types</h3>
+<div class="outline-text-3" id="text-gen-avro">
+<p>
+User code should not be burdened with validating and interpreting a
+configuration byte stream or even a dynamic C++ object like
+<code>nlohman::json</code>.  Instead, with <code>cogs</code> the user code receives a fully
+typed C++ <code>struct</code>, thus guaranteeing at least valid object structure.
+</p>
+
+<p>
+A configuration <code>struct</code> is produced in this demo using Avro CPP code
+generator.  It consumes Avro schema files which are produced from the
+demo's Jsonnet model in <a href="demo/demo-avro.jsonnet">demo-avro.jsonnet</a> using the <code>moo</code> tool:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-shell"><span style="color: #e090d7;">echo</span> <span style="color: #e9b96e;">"Compiling Avro schema files"</span>
+moo compile -m . demo-avro.jsonnet
+<span style="color: #e090d7;">echo</span> <span style="color: #e9b96e;">"Generating Avro code"</span>
+<span style="color: #b4fa70;">for</span> n<span style="color: #b4fa70;"> in</span> *_avro.json; <span style="color: #b4fa70;">do</span>
+    avrogencpp -n democfg -i $<span style="color: #fcaf3e;">n</span> -o $(<span style="color: #fa8072;">basename</span> $<span style="color: #fcaf3e;">n</span> .json).hpp &amp;&amp; rm $<span style="color: #fcaf3e;">n</span>
+<span style="color: #b4fa70;">done</span>     
+</pre>
+</div>
+
+<p>
+one resulting file is at <a href="demo/node_avro.hpp">node<sub>avro.hpp</sub></a>.
+</p>
+
+<p>
+Note, we must give the C++ <code>namespace</code> on this command line.  It is also
+used elsewhere and is a case where some of the model "leaks" out of
+the otherwise "sole source of truth", the Jsonnet.  Work is needed to
+correct this.
+</p>
+
+<p>
+The content of Jsonnet file <a href="demo/demo-avro.jsonnet">demo-avro.jsonnet</a> is:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-jsonnet"><span style="color: #73d216;">// compile with -m</span>
+<span style="color: #b4fa70;">local</span> moo = <span style="color: #b4fa70;">import</span> <span style="color: #e9b96e;">"moo.jsonnet"</span>;
+<span style="color: #b4fa70;">local</span> moc = <span style="color: #b4fa70;">import</span> <span style="color: #e9b96e;">"moc.jsonnet"</span>;
+<span style="color: #b4fa70;">local</span> node = <span style="color: #b4fa70;">import</span> <span style="color: #e9b96e;">"node-schema.jsonnet"</span>;
+<span style="color: #b4fa70;">local</span> comp = <span style="color: #b4fa70;">import</span> <span style="color: #e9b96e;">"comp-schema.jsonnet"</span>;
+<span style="color: #b4fa70;">local</span> head = <span style="color: #b4fa70;">import</span> <span style="color: #e9b96e;">"head-schema.jsonnet"</span>;
+
+{
+    <span style="color: #e9b96e;">"node_avro.json"</span>: node(moc.avro).types,
+    <span style="color: #e9b96e;">"comp_avro.json"</span>: comp(moc.avro).types,
+    <span style="color: #e9b96e;">"head_avro.json"</span>: head(moc.avro).types,
+}
+</pre>
+</div>
+
+<p>
+Compiling to Avro schema is particularly easy since that format is
+JSON.  The <code>moc.avro</code> "base schema" provided to the application schema
+functions, eg <code>node()</code> cause Avro JSON to be output.  Instead passing
+another base schema, eg, <code>moc.pbuf</code>, would produce a data structure
+compliant with Protobuf schema which may the be applied to a suitable
+template file in order to produce a Protobuf <code>.proto</code> file which can be
+compiled to Protobuf C++ classes.  We'll see just this pattern in the
+next section.
+</p>
+
+<p>
+For these and other reasons, future work may revisit the use of Avro
+for providing the configuration <code>struct</code> definition.  The demo does not
+actually use Avro serialization (next section) which would make a
+change easy.
+</p>
+</div>
+</div>
+
+<div id="outline-container-gen-nljs" class="outline-3">
+<h3 id="gen-nljs">Serialization code</h3>
+<div class="outline-text-3" id="text-gen-nljs">
+<p>
+While a <code>cogs</code> provides built-in support for JSON array or JSON stream
+files, <code>cogs</code> streams are ultimately some form of byte streams.  An
+intermediate representation of configuration information is provided
+in the form of a <code>cogs::object</code> which is simply a <code>nlohmann::json</code>.  This
+makes implementing the built-in JSON-based <code>cogs::Streams</code> rather
+trivial while also provides a general purpose intermediary
+representation which isolates low and high levels of <code>cogs</code>.  The
+<code>nlohmann::json</code> package is further exploited by generating <code>to_json()</code>
+and <code>from_json()</code> functions for every C++ type so that conversion
+between a <code>cogs::object</code> and its corresponding C++ <code>struct</code> (generated as
+above) is straight-forward.
+</p>
+
+<p>
+This C++ code is generated as:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-shell"><span style="color: #e090d7;">echo</span> <span style="color: #e9b96e;">"Rendering nlohmann::json serialization code"</span>
+moo render-many demo-render.jsonnet
+</pre>
+</div>
+
+<p>
+The <a href="demo/demo-render.jsonnet">demo-render.jsonnet</a> file holds:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-jsonnet"><span style="color: #b4fa70;">local</span> moo = <span style="color: #b4fa70;">import</span> <span style="color: #e9b96e;">"moo.jsonnet"</span>;
+<span style="color: #b4fa70;">local</span> moc = <span style="color: #b4fa70;">import</span> <span style="color: #e9b96e;">"moc.jsonnet"</span>;
+<span style="color: #b4fa70;">local</span> node = <span style="color: #b4fa70;">import</span> <span style="color: #e9b96e;">"node-schema.jsonnet"</span>;
+<span style="color: #b4fa70;">local</span> comp = <span style="color: #b4fa70;">import</span> <span style="color: #e9b96e;">"comp-schema.jsonnet"</span>;
+<span style="color: #b4fa70;">local</span> head = <span style="color: #b4fa70;">import</span> <span style="color: #e9b96e;">"head-schema.jsonnet"</span>;
+
+<span style="color: #b4fa70;">local</span> render_nljs = <span style="color: #b4fa70;">function</span>(name, schema) moo.render(
+    model= {
+        types: schema(moc.avro).types,
+        namespace: <span style="color: #e9b96e;">"democfg"</span>,
+        name:name,
+    },
+    template = <span style="color: #e9b96e;">"avro_nljs.hpp.j2"</span>,
+    filename = name+<span style="color: #e9b96e;">"_nljs.hpp"</span>);
+
+[
+    render_nljs(<span style="color: #e9b96e;">"node"</span>,node),
+    render_nljs(<span style="color: #e9b96e;">"comp"</span>,comp),
+    render_nljs(<span style="color: #e9b96e;">"head"</span>,head),
+]
+</pre>
+</div>
+
+<p>
+It is somewhat similar to <code>demo-avro.jsonnet</code> shown above and even uses
+the same "base schema" as used to generate Avro schema.  However,
+instead of providing Avro schema files which must be post-processed by
+<code>avrogencpp</code>, it provides information that may be directly consumed and
+applied against templates by the <code>moo</code> tool in order to produce all C++
+code files in one go.  The generated NLJS C++ file for a "node" is at
+<a href="demo/node_nljs.hpp"><code>node_nljs.hpp</code></a>
+</p>
+</div>
+</div>
+
+
+<div id="outline-container-gen-cfg" class="outline-3">
+<h3 id="gen-cfg">Configuration stream</h3>
+<div class="outline-text-3" id="text-gen-cfg">
+<p>
+We finally generate an example <code>cogs</code> configuration stream in the form
+of a JSON file holding an array.  This file is created from Jsonnet by
+<code>moo</code>:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-shell"><span style="color: #e090d7;">echo</span> <span style="color: #e9b96e;">"Compiling configuration to cogs stream file"</span>
+moo compile -D model demo-config.jsonnet &gt; demo-config.json
+</pre>
+</div>
+
+<p>
+The <a href="demo/demo-config.json">demo-config.json</a> file is what was used above to run the demo.  It
+is not long and so is included here:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-json">[
+    {
+        <span style="color: #b4fa70;">"impname"</span>: <span style="color: #e9b96e;">"demoSource"</span>,
+        <span style="color: #b4fa70;">"instname"</span>: <span style="color: #e9b96e;">"mycomp_source1"</span>
+    },
+    {
+        <span style="color: #b4fa70;">"ntosend"</span>: <span style="color: #e9b2e3;">42</span>
+    },
+    {
+        <span style="color: #b4fa70;">"impname"</span>: <span style="color: #e9b96e;">"demoNode"</span>,
+        <span style="color: #b4fa70;">"instname"</span>: <span style="color: #e9b96e;">"mynode_inst1"</span>
+    },
+    {
+        <span style="color: #b4fa70;">"compdefs"</span>: [
+            {
+                <span style="color: #b4fa70;">"config"</span>: <span style="color: #e9b96e;">""</span>,
+                <span style="color: #b4fa70;">"ident"</span>: <span style="color: #e9b96e;">"mycomp_source1"</span>,
+                <span style="color: #b4fa70;">"portlist"</span>: [
+                    <span style="color: #e9b96e;">"src"</span>
+                ],
+                <span style="color: #b4fa70;">"type_name"</span>: <span style="color: #e9b96e;">"demoSource"</span>
+            }
+        ],
+        <span style="color: #b4fa70;">"ident"</span>: <span style="color: #e9b96e;">"mynode1"</span>,
+        <span style="color: #b4fa70;">"portdefs"</span>: [
+            {
+                <span style="color: #b4fa70;">"ident"</span>: <span style="color: #e9b96e;">"src"</span>,
+                <span style="color: #b4fa70;">"links"</span>: [
+                    {
+                        <span style="color: #b4fa70;">"address"</span>: <span style="color: #e9b96e;">""</span>,
+                        <span style="color: #b4fa70;">"linktype"</span>: <span style="color: #e9b96e;">"bind"</span>
+                    }
+                ]
+            }
+        ]
+    }
+]
+</pre>
+</div>
+
+<p>
+You can see the paired objects, each preceded by what will be come a
+<code>demo::ConfigHeader</code> followed a an object of a specific type
+corresponding to the component named in the preceding header.
+</p>
+
+<p>
+Note, the choice of ordering is intentional.  It leads to the
+construction and configuration of the <code>demoSource</code> prior to the use of
+this component inside the node.  That use calls back to the component
+in order to pass in the requested "port" objects.
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-schema" class="outline-2">
+<h2 id="schema">Schema</h2>
+<div class="outline-text-2" id="text-schema">
+<p>
+This section describes how to develop schema.  It first describes the
+layer of "application schema" and "abstract base schema".  It then
+illustrates the elements of the the latter and walks through an
+example of the former.
+</p>
+</div>
+
+<div id="outline-container-schema-layers" class="outline-3">
+<h3 id="schema-layers">Layers</h3>
+<div class="outline-text-3" id="text-schema-layers">
+<p>
+The demo assumes two layers or schema.  The lowest is called an
+"abstract base schema".  Strictly speaking it is a specification of a
+set of function names and their arguments.  The demo then provides a
+number of implementations of this base schema.  A implementation of a
+base schema function then returns a corresponding data structure that
+adheres to the schema vocabulary of a particular domain.  
+</p>
+
+<p>
+For example, one base schema implementation provides structures
+suitable for directly producing Avro schema JSON.  Another provides
+structures which adhere to JSON Schema vocabulary.  Another example
+given above is one that produces structure that may be applied to a
+<code>message.proto.j2</code> template to produce Protobuf <code>.proto</code> file that can
+then be compiled into C++ classes via <code>protoc</code>.
+</p>
+
+<p>
+Using these primitive base functions, an application developer writes
+the next layer of functions which emit schema that describes the
+specific data types required by the developers components.  
+</p>
+
+<p>
+The next section describes the functions provided by a base schema
+followed by a tour of the application level schema for the
+configuration used by the "node" component in the <code>cogs</code> demo.
+</p>
+</div>
+</div>
+
+<div id="outline-container-base-schema" class="outline-3">
+<h3 id="base-schema">Base schema</h3>
+<div class="outline-text-3" id="text-base-schema">
+<p>
+The base schema in its abstract form is a set of Jsonnet function
+prototypes which are summarized here.  An implementation of an
+abstract function is expected to return a description of the type
+named by the function in some <b>domain vocabulary</b>.  For example the demo
+provides one base implemented for the <a href="demo/avro-schema.jsonnet">Avro schema</a> domain and one for
+that of <a href="demo/json-schema.jsonnet">JSON Schema</a>.
+</p>
+
+<p>
+Domains will differ in what they can meaningfully accept.  This means
+that some domains may ignore some arguments to their functions.
+Furthermore, some arguments are optional which are indicated by
+setting default value to Jsonnet <code>null</code>.  A domain may either provide a
+default inside the function body or the argument shall be ignored (no
+<code>null</code> values should "leak out" from the functions).
+</p>
+
+<p>
+The abstract base schema functions are:
+</p>
+
+<dl class="org-dl">
+<dt><code>boolean()</code></dt><dd>a Boolean type</dd>
+
+<dt><code>number(dtype, extra={})</code></dt><dd>a numeric type.  The <code>dtype</code> argument should
+provide specific type information using Numpy codes (eg <code>i4</code> for C++
+<code>int</code>, <code>u2</code> for C++ <code>uint16_t</code>).  The <code>extra</code> may specify JSON Schema
+constraints.</dd>
+
+<dt><code>bytes(encoding=null, media_type=null)</code></dt><dd>a sequence of byte values</dd>
+
+<dt><code>string(patern=null, format=null)</code></dt><dd>a string type, <code>pattern</code> and
+<code>format</code> are JSON Schema arguments specifying a regular expression or
+a named format that a valid string must match.</dd>
+
+<dt><code>field(name, type, default=null, doc=null)</code></dt><dd>an named and typed
+element in the context of a <code>record</code>.  If the type is not scalar (eg,
+is a <b>record</b>) then <code>type</code> should be given as the name of the type.  The
+<code>default</code> may provide a default <b>value</b> of this field.  The <code>doc</code> provides
+a brief English description of the meaning of the field.</dd>
+
+<dt><code>record(name, fields=[], doc=null)</code></dt><dd>a type which aggregates fields.
+This corresponds to a JSON object or a C++ <code>struct</code> or <code>class</code>, etc.
+The <code>fields</code> array is a sequence of objects returned from the <code>field()</code>
+function (from the same domain).</dd>
+
+<dt><code>sequence(type)</code></dt><dd>an ordered sequence holding elements of type <code>type</code>.</dd>
+
+<dt><code>enum(name, symbols, default=null, doc=null)</code></dt><dd>an enumerated type.
+The <code>symbols</code> is an array of string literals naming the enumerated
+values.  The <code>default</code> may specify an enumerated value to be used if
+otherwise not specified.</dd>
+</dl>
+</div>
+</div>
+
+<div id="outline-container-node-schema" class="outline-3">
+<h3 id="node-schema">Node schema</h3>
+<div class="outline-text-3" id="text-node-schema">
+<p>
+The concept of a "node" in this demo has been descried above.  Here we
+examine the <a href="demo/node-schema.jsonnet">node-schema.jsonnet</a> file as an example of an
+application-level schema.  
+</p>
+
+<p>
+First we look at the high-level structure of the file:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-jsonnet"><span style="color: #b4fa70;">function</span>(schema) {
+    <span style="color: #73d216;">// defines types</span>
+    types: [ typeA, typeB, ...]
+}
+</pre>
+</div>
+
+<p>
+This Jsonnet compiles down to a single function object which takes the
+argument <code>schema</code> which provides a set of base schema functions such as
+described in the previous sections.  The primary result of this
+function is to return a Jsonnet object (<code>{...}</code>) which contains an
+attribute <code>types</code> holding an array of objects describing types
+constructed through calls to functions provided by <code>schema</code>.
+</p>
+
+<p>
+Looking at the first few lines:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-jsonnet"><span style="color: #b4fa70;">local</span> re = <span style="color: #b4fa70;">import</span> <span style="color: #e9b96e;">"re.jsonnet"</span>;
+<span style="color: #b4fa70;">function</span>(schema) {
+    <span style="color: #b4fa70;">local</span> ident = schema.string(pattern=re.ident_only),
+</pre>
+</div>
+
+<p>
+Here, the Jsonnet file <a href="demo/re.jsonnet">re.jsonnet</a> is imported.  It contains a set of
+regular expressions that are to be used to constrain the validity of
+strings in the schema.  For example it begins with:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-jsonnet">{
+    <span style="color: #73d216;">// Basic identifier (restrict to legal C variable nam)</span>
+    ident: <span style="color: #e9b96e;">'[a-zA-Z][a-zA-Z0-9_]*'</span>,
+    ident_only: <span style="color: #e9b96e;">'^'</span> + <span style="color: #b4fa70;">self</span>.ident + <span style="color: #e9b96e;">'$'</span>,
+</pre>
+</div>
+
+<p>
+Thus a string with <code>pattern</code> set to <code>ident</code> may be validated to hold only
+a limited alphanumeric content.  
+</p>
+
+<p>
+Back to <code>node-shcema.jsonnet</code>, we <code>ident</code> defined as a string with a
+pattern <code>re.ident_only</code> as a Jsonnet <code>local</code>.  This means the variable is
+temporary and known only in the scope of the object.  This lets it be
+referred to simply by the name <code>ident</code> later.
+</p>
+
+<p>
+Next we find an example of an <code>enum</code> and a <code>record</code> which describe a "link":
+</p>
+
+<div class="org-src-container">
+<pre class="src src-jsonnet"><span style="color: #b4fa70;">local</span> ltype = schema.enum(<span style="color: #e9b96e;">"LinkType"</span>, [<span style="color: #e9b96e;">"bind"</span>,<span style="color: #e9b96e;">"connect"</span>], default=<span style="color: #e9b96e;">"bind"</span>,
+                     doc=<span style="color: #e9b96e;">"How a port links to an address"</span>),
+<span style="color: #b4fa70;">local</span> link = schema.record(<span style="color: #e9b96e;">"Link"</span>, fields= [
+    schema.field(<span style="color: #e9b96e;">"linktype"</span>, <span style="color: #e9b96e;">"LinkType"</span>,
+            doc=<span style="color: #e9b96e;">"The socket may bind or connect the link"</span>),
+    schema.field(<span style="color: #e9b96e;">"address"</span>, address, 
+            doc=<span style="color: #e9b96e;">"The address to link to"</span>)
+</pre>
+</div>
+
+<p>
+A "link" is intended to generalize the concept of a socket <code>bind()</code> or a
+<code>connect()</code> with an "address".  In a real system like ZIO, an address is
+in the form of a URL like <code>tcp://127.0.0.1:5678</code> for direct ZeroMQ
+addressing or <code>zyre://nodename/portname</code> for automated network peer
+discovery.
+</p>
+
+<p>
+Next we come to a "port":
+</p>
+
+<div class="org-src-container">
+<pre class="src src-jsonnet"><span style="color: #b4fa70;">local</span> port = schema.record(<span style="color: #e9b96e;">"Port"</span>, fields=[
+    schema.field(<span style="color: #e9b96e;">"ident"</span>, ident,
+            doc=<span style="color: #e9b96e;">"Identify the port uniquely in th enode"</span>),
+    schema.field(<span style="color: #e9b96e;">"links"</span>, schema.sequence(<span style="color: #e9b96e;">"Link"</span>), 
+            doc=<span style="color: #e9b96e;">"Describe how this port should link to addresses"</span>),
+], doc=<span style="color: #e9b96e;">"A port configuration object"</span>,),
+</pre>
+</div>
+
+<p>
+A port is another <code>record</code> with an identifier (name) of a type <code>ident</code>
+which we defined above.  That is, a string which may be validated
+against a regular expression.  The second field is <code>links</code> which is a
+<code>sequence</code>.  In ZIO a port corresponds to a ZeroMQ socket which may have
+a multitude of both <code>bind()</code> and <code>connect()</code> links.
+</p>
+
+<p>
+Next we define the part of the node configuration which describes what
+a node needs to know in order to interact with a component:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-jsonnet"><span style="color: #b4fa70;">local</span> comp = schema.record(<span style="color: #e9b96e;">"Comp"</span>, fields=[
+    schema.field(<span style="color: #e9b96e;">"ident"</span>, ident, 
+            doc=<span style="color: #e9b96e;">"Identify copmponent instance uniquely in the node"</span>),
+    schema.field(<span style="color: #e9b96e;">"type_name"</span>, ident, 
+            doc=<span style="color: #e9b96e;">"Identify the component implementation"</span>),
+    schema.field(<span style="color: #e9b96e;">"portlist"</span>, schema.sequence(ident), 
+            doc=<span style="color: #e9b96e;">"Identity of ports required by component"</span>),
+    schema.field(<span style="color: #e9b96e;">"config"</span>, schema.string(), 
+            doc=<span style="color: #e9b96e;">"Per instance configuration string used by node"</span>)
+], doc=<span style="color: #e9b96e;">"An object used by the node to partly configure a component"</span>),
+</pre>
+</div>
+
+<p>
+The first two fields are identifiers used to look up the component
+using the factory (ie, matching what is also provided to <code>main()</code> in the
+header object).  The <code>portlist</code> is a sequence of identifiers which must
+mach those used in defining a <code>Port</code> above.  This required consistency
+can be enforced by Jsonnet when generating actual configuration
+objects as described in the next section.  And, finally, an arbitrary
+extra string is provided which the demo does not actually use for
+anything.  It may be used by the node to interpret some special action
+on the component (eg, "ignore" or something).
+</p>
+
+<p>
+Penultimately, we get to the top level of the "node" schema:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-jsonnet"><span style="color: #b4fa70;">local</span> node = schema.record(<span style="color: #e9b96e;">"Node"</span>, fields=[
+    schema.field(<span style="color: #e9b96e;">"ident"</span>, ident,
+            doc=<span style="color: #e9b96e;">"Idenfity the node instance"</span>),
+    schema.field(<span style="color: #e9b96e;">"portdefs"</span>, schema.sequence(<span style="color: #e9b96e;">"Port"</span>), 
+            doc=<span style="color: #e9b96e;">"Define ports on the node to be used by components"</span>),
+    schema.field(<span style="color: #e9b96e;">"compdefs"</span>, schema.sequence(<span style="color: #e9b96e;">"Comp"</span>),
+            doc=<span style="color: #e9b96e;">"Define components the node should instantiate and configure"</span>),
+], doc=<span style="color: #e9b96e;">"A node configures ports and components"</span>),
+</pre>
+</div>
+
+<p>
+This defines a <code>record</code> type <code>Node</code> with fields meant to hold the port and
+component definitions.
+</p>
+
+<p>
+And, finally, the "return" value collects all the types:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-jsonnet">    types: [ ltype, link, port, comp, node ],
+}
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org022a5e0" class="outline-3">
+<h3 id="org022a5e0">Configuration objects</h3>
+<div class="outline-text-3" id="text-org022a5e0">
+<blockquote>
+<p>
+This portion is still a work in progress:
+</p>
+
+<ul class="org-ul">
+<li class="off"><code>[&#xa0;]</code> make a base schema that generates <b>structures of functions</b> which in turn may be called to define the configuration object.</li>
+
+<li class="off"><code>[&#xa0;]</code> using existing JSON Schema base schema to validate these objects.</li>
+</ul>
+</blockquote>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: Brett Viren</p>
+<p class="date">Created: 2020-06-25 Thu 15:19</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

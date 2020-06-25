@@ -43,13 +43,13 @@ Near term
 - [X] abstract configuration stream class
 - [X] simple JSON file stream implementations
 - [X] configurable base hierarchy
-- [ ] port demo application and schema from moo/moc
-- [ ] port demo ~Makefile~ to ~wscript~
-- [ ] user documentation
+- [X] port demo application and schema from moo/moc
+- [X] +port demo ~Makefile~ to ~wscript~+ use generate.sh for codegen but o.w. build 
+- [X] user documentation: https://brettviren.github.io/demo.html 
 
 Longer term
  
-- [ ] understand what CCM message passing will be (gRPC? ZeroMQ?)
+- [ ] understand what CCM message passing will be (gRPC? Cap'N Proto? ZeroMQ?)
 - [ ] develop a ~cogs::Stream~ to support it
 - [ ] integrate use of cogs into appfmk
 

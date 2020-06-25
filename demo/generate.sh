@@ -7,6 +7,7 @@ echo "codegen in $(pwd)"
 
 echo "Rendering nlohmann::json serialization code"
 moo render-many demo-render.jsonnet
+
 echo "Compiling Avro schema files"
 moo compile -m . demo-avro.jsonnet
 echo "Generating Avro code"

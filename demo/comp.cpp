@@ -14,12 +14,19 @@ namespace demo {
     class Source : public cogs::Configurable<democfg::Source>,
                    public demo::PortuserBase {
       public:
+        Source() {
+            ERS_INFO("Source:\tconstructing");
+        }
+        virtual ~Source() {
+            ERS_INFO("Source:\tdestructing");
+        }
+
         virtual void configure(democfg::Source&& cfg) {
-            ERS_INFO("Source will send " << cfg.ntosend);
+            ERS_INFO("Source:\tconfigured to send " << cfg.ntosend << " things");
         }
         
         virtual void set_port(demo::Port p) {
-            ERS_INFO("Source given port " << p.ident);
+            ERS_INFO("Source:\tgiven port " << p.ident);
         }
     };
 

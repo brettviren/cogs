@@ -10,26 +10,33 @@ namespace demo {
 
     class Node : public cogs::Configurable<democfg::Node> {
       public:
+        Node() {
+            ERS_INFO("Node:\t\tconstructing");
+        }
+        virtual ~Node() {
+            ERS_INFO("Node:\t\tdestructing");
+        }
+
         virtual void configure(democfg::Node&& cfg) {
-            ERS_INFO("Node: " << cfg.ident);
+            ERS_INFO("Node:\t\t" << cfg.ident);
 
             for (auto& p : cfg.portdefs) {
-                ERS_INFO("Node:\tmaking port: " << p.ident);
+                ERS_INFO("Node:\t\t\tmaking port: " << p.ident);
                 for (auto& l : p.links) {
                     std::string borc = "bind";
                     if (l.linktype == democfg::LinkType::connect) {
                         borc = "connect";
                     }
-                    ERS_INFO("Node:\t\tlink: " << borc << "'ing to: " << l.address);
+                    ERS_INFO("Node:\t\t\t\tlink: " << borc << "'ing to: " << l.address);
                 }
             }
 
             // Interaction between a Node and components
             for (auto& c : cfg.compdefs) {
-                ERS_INFO("Node:\tlookin up component: " << c.ident);
+                ERS_INFO("Node:\t\tlookin up component: " << c.ident);
                 auto pu = portuser(c.type_name, c.ident);
                 if (!pu) {
-                    ERS_DEBUG(1, "Node:\tignoring non-port using component");
+                    ERS_DEBUG(1, "Node:\t\tignoring non-port using component");
                     continue;
                 }
                 // Ports here represent some kind of a shared resource
@@ -41,6 +48,7 @@ namespace demo {
                 // identified through configuration.
                 for (auto pn: c.portlist) {
                     Port port{pn};
+                    ERS_INFO("Node:\t\t\tset port: " << pn);
                     pu->set_port(port);
                 }
             }

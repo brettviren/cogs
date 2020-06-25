@@ -18,7 +18,6 @@ int main(int argc, char* argv[])
     /// features and so needs discussion.
 
     std::string uri = argv[1];
-    ERS_INFO("loading " << uri);
 
     // This will return a valid stream or throw an issue.
     auto cs = cogs::make_stream(uri);
@@ -29,7 +28,7 @@ int main(int argc, char* argv[])
             obj = cs->pop();
         }
         catch (const cogs::stream_exhausted& se) {
-            ERS_INFO("configuration stream done");
+            ERS_INFO("main:\t\tconfiguration stream done");
             break;
         }
 
@@ -41,13 +40,13 @@ int main(int argc, char* argv[])
         // header.
         auto header = obj.get<democfg::ConfigHeader>();
 
-        ERS_INFO("lookup: [" << header.impname << "]: "
+        ERS_INFO("main:\t\tlookup: [" << header.impname << "]: "
                  << "\"" << header.instname << "\"");
         auto cfgble = demo::configurable(header.impname, header.instname);
         assert(cfgble);
         obj = cs->pop();
 
-        ERS_INFO("configure: [" << header.impname << "]: "
+        ERS_INFO("main:\t\tconfigure: [" << header.impname << "]: "
                  << "\"" << header.instname << "\"");
         cfgble->configure(obj);
     }
