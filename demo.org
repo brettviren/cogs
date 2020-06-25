@@ -25,20 +25,22 @@ one way to make use of ~cogs~.  It includes:
 
 - A mocked up framework, application and components.
 - Schema to generate configuration classes.
-- Example cogs configuration stream file.
-- Simple tooling to run generation.
+- Example ~cogs~ configuration stream file.
+- Simple tooling to rerun code generation.
 - Integration into ~cogs~ build system.
 
 This document describes how to build and run the demo.  It then gives
 a tour of the mocked framework to understand one possible way to allow
-~cogs~ to be used.  It then gives details on the code generation steps
-and ends with a section that uses the demo's schema to illustrate how
-one may write their own.
+~cogs~ to be used.  Details on the code generation steps come next and
+it ends with a section that uses the demo's schema to illustrate how
+one may develop schema for applications.
 
 * Build
   :PROPERTIES:
   :CUSTOM_ID: build
   :END:
+
+This section describes issues about building the demo code. 
 
 ** Prerequisites
    :PROPERTIES:
