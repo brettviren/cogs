@@ -45,7 +45,7 @@ Near term
 - [X] configurable base hierarchy
 - [X] port demo application and schema from moo/moc
 - [X] +port demo ~Makefile~ to ~wscript~+ use generate.sh for codegen but o.w. build 
-- [X] user documentation: https://brettviren.github.io/demo.html 
+- [X] user documentation: https://brettviren.github.io/cogs/demo.html 
 
 Longer term
  
