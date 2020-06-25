@@ -1,4 +1,4 @@
-#+title: cogs - configuration object generation system
+#+title: cogs ⚙ configuration object generation system
 
 This package provides the core services and facilities to define,
 produce and deliver configuration information to applications in a

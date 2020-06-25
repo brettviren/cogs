@@ -1,4 +1,4 @@
-#+title: cogs
+#+title: ⚙ cogs ⚙
 #+subtitle: Configuration Object Generation System
 #+setupfile: setup.org
 
