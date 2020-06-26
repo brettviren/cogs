@@ -1,0 +1,37 @@
+[
+    {
+        "impname": "demoSource",
+        "instname": "mycomp_source1"
+    },
+    {
+        "ntosend": 42
+    },
+    {
+        "impname": "demoNode",
+        "instname": "mynode_inst1"
+    },
+    {
+        "compdefs": [
+            {
+                "config": "",
+                "ident": "mycomp_source1",
+                "portlist": [
+                    "src"
+                ],
+                "type_name": "demoSource"
+            }
+        ],
+        "ident": "mynode1",
+        "portdefs": [
+            {
+                "ident": "src",
+                "links": [
+                    {
+                        "address": "",
+                        "linktype": "bind"
+                    }
+                ]
+            }
+        ]
+    }
+]

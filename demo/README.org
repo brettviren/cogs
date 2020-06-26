@@ -1,0 +1,5 @@
+#+title: cogs demo
+
+This directory holds a demonstrating of using cogs in a mocked up
+application framework.  For more information, see the detailed write
+up at https://brettviren.github.io/cogs/demo.html.

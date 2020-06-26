@@ -1,0 +1,11 @@
+#+title: ⚙ cogs ⚙
+#+subtitle: Configuration Object Generation System
+#+setupfile: setup.org
+
+This repository holds ~cogs~ which is a system for generating
+configuration objects based on defining abstract schema which may then
+produce specific generating schema (eg, for Avro, Protobuf, etc) or
+validating schema (eg JSON Schema).
+
+More documentation can be found in the [[file:demo.org][demo write up]].
+

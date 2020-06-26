@@ -1,0 +1,6 @@
+bld.program(features = 'cxx',
+            includes = '../inc .',
+            source = bld.path.ant_glob("*.cpp"),
+            target = 'cogs-demo',
+            rpath = [bld.env.LIBDIR],
+            use = ['cogs','ERS','NLJS','AVRO'])

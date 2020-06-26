@@ -23,4 +23,8 @@ ERS_DECLARE_ISSUE(cogs, stream_corrupt,
                   ((std::string)name)
                   ((std::string)err))                  
 
+ERS_DECLARE_ISSUE(cogs, schema_error,
+                  "Stream corrupt: " << what,
+                  ((std::string)what))
+
 #endif

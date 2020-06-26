@@ -1,0 +1,634 @@
+#+title: cogs ⚙ demo
+#+subtitle: Demonstration of Configuration Object Generation System
+#+setupfile: setup.org
+#+options: broken-links:mark
+
+#+name: grep
+#+begin_src shell :var re="" :var file="/dev/null"  :var a=0 :var lang="shell" :exports none :results output code
+grep -m1 -A$a "$re" "$file"
+#+end_src
+
+#+name: runcmd
+#+begin_src shell :var cmd="echo hello world" :exports none :results output code :wrap "example"
+$cmd
+#+end_src
+
+
+
+* Introduction
+  :PROPERTIES:
+  :CUSTOM_ID: intro
+  :END:
+
+The [[file:demo/][demo/]] directory of the [[https://github.com/brettviren/cogs][cogs]] repository holds a demonstration of
+one way to make use of ~cogs~.  It includes:
+
+- A mocked up framework, application and components.
+- Schema to generate configuration classes.
+- Example ~cogs~ configuration stream file.
+- Simple tooling to rerun code generation.
+- Integration into ~cogs~ build system.
+
+This document describes how to build and run the demo.  It then gives
+a tour of the mocked framework to understand one possible way to allow
+~cogs~ to be used.  Details on the code generation steps come next and
+it ends with a section that uses the demo's schema to illustrate how
+one may develop schema for applications.
+
+* Build
+  :PROPERTIES:
+  :CUSTOM_ID: build
+  :END:
+
+This section describes issues about building the demo code. 
+
+** Prerequisites
+   :PROPERTIES:
+   :CUSTOM_ID: prereq
+   :END:
+
+In addition to what ~cogs~ requires, the demo requires:
+
+- Avro CPO library and headers
+
+The generated demo code is committed to the repository.  To regenerate
+it requires additionally:
+
+- ~avrogencpp~ from Avro CPP package
+
+- ~moo~ Python program from [[https://github.com/brettviren/moo][moo]].
+
+** Compile
+   :PROPERTIES:
+   :CUSTOM_ID: compile
+   :END:
+
+With prerequisites satisfied, the demo builds with the ~cogs~ library.  For example:
+
+#+begin_example
+waf configure --prefix=$(pwd)/install --with-nljs=$HOME/opt/nljs --with-ers=$HOME/opt/ers --with-avro=$HOME/opt/avro
+waf install
+#+end_example
+
+You should be rewarded with:
+
+#+begin_src shell :exports both :results output code :wrap "example"
+./install/bin/cogs-demo || /bin/true
+#+end_src
+
+#+RESULTS:
+#+begin_example
+2020-Jun-25 12:17:22,617 INFO [main(...) at unknown/demo/cogs-demo.cpp:12] usage: ./install/bin/cogs-demo <uri>
+#+end_example
+
+** Regenerate
+   :PROPERTIES:
+   :CUSTOM_ID: regen
+   :END:
+
+
+The demo relies on generated code which is committed to the repository
+to reduce the build-time dependency of ~cogs~.  If the additional
+prerequisites are satisfied, it may be regenerated:
+
+#+begin_src shell :exports both :results output code :wrap example
+./demo/generate.sh
+#+end_src
+
+#+RESULTS:
+#+begin_example
+codegen in /home/bv/dev/cogs/demo
+Rendering nlohmann::json serialization code
+generating ./node_nljs.hpp:
+generating ./comp_nljs.hpp:
+generating ./head_nljs.hpp:
+Compiling Avro schema files
+Generating Avro code
+Validating configuration
+null
+null above means okay!
+Compiling configuration to cogs stream file
+#+end_example
+
+Below we will look more at what this script does.
+
+* Run
+  :PROPERTIES:
+  :CUSTOM_ID: run
+  :END:
+
+
+The demo provides a ready made ~cogs~ configuration stream file:
+
+#+begin_src shell :exports both :results output code :wrap example
+./install/bin/cogs-demo file://demo/demo-config.json | sed -e 's/^[^]]*\]//'
+#+end_src
+
+#+RESULTS:
+#+begin_example
+ making stream for file://demo/demo-config.json
+ main:		lookup: [demoSource]: "mycomp_source1"
+ Source:	constructing
+ main:		configure: [demoSource]: "mycomp_source1"
+ Source:	configured to send 42 things
+ main:		lookup: [demoNode]: "mynode_inst1"
+ Node:		constructing
+ main:		configure: [demoNode]: "mynode_inst1"
+ Node:		mynode1
+ Node:			making port: src
+ Node:				link: bind'ing to: 
+ Node:		lookin up component: mycomp_source1
+ Node:			set port: src
+ Source:	given port src
+ main:		configuration stream done
+#+end_example
+
+The ~sed~ is simply to remove ERS output augmentation more appropriate
+to log files.  The output shows the configuration driving the
+construction of a "node" and a "component" (the "source") followed by
+their configuration.  When the node is configured it makes a (dummy)
+"port" and hands that C++ object to the source.  The next section on
+the demo framework describes these terms.  They are not inherent to
+~cogs~ itself, just this demo but they represent typical code patterns.
+
+* Framework
+  :PROPERTIES:
+  :CUSTOM_ID: framework
+  :END:
+
+It is possible to use ~cogs~ in a variety of patterns.  This demo
+illustrates one particular pattern such as may be used in an
+"application framework".  This pattern might be named something like
+"factory configuration".  It provides for a highly flexible,
+configuration-driven method for "aggregating" an application instance
+from a set of factory-instantiated components.  
+
+** Demo configuration stream
+   :PROPERTIES:
+   :CUSTOM_ID: config-stream
+   :END:
+
+
+The construction of the demo application and its configuration is
+driven by a ~cogs~ configuration stream.  The stream is composed of a
+sequence of pairs of configuration objects.  The first object in each
+pair co responds to a fixed type of ~demo::ConfigurableBase~.  It
+provides information required to locate a component instance.  The
+second object in a pair corresponds to the configuration of that
+component instance.
+
+The stream is illustrated as:
+
+|---------------------------------------|
+| component 1: ~democfg::ConfigHeader~    |
+|---------------------------------------|
+| component 1: corresponding cfg object |
+|---------------------------------------|
+| ...                                   |
+|---------------------------------------|
+| component N: ~democfg::ConfigHeader~    |
+|---------------------------------------|
+| component N: corresponding cfg object |
+|---------------------------------------|
+
+** Dispatching configuration
+   :PROPERTIES:
+   :CUSTOM_ID: dispatch-config
+   :END:
+
+The ~ConfigHeader~ provides two attributes:
+
+- implementation identifier :: this is some name associated with a
+  construction method for an implementation of ~ConfigurableBase~.  This
+  identifier is some simple name, likely derived from the component's
+  C++ class name.
+
+- instance identifier :: multiple instances of one component may be
+  constructed and this identifier keeps then distinct.
+
+The main application walks the ~cogs::Stream~ using the ~ConfigHeader~ to
+retrieve an instance from the demo factory.  It then reads the next
+object from the ~cogs::Stream~ and passes it to the component's
+~configure()~ method.  When the stream is exhausted the demo app simply
+exits.  A real app would of course go on to some other phase of
+execution.
+
+** Non-trivial application patterns
+   :PROPERTIES:
+   :CUSTOM_ID: app-pattern
+   :END:
+
+The demo adds some non-trivial complexity by considering two types of
+configurable objects:
+
+- node :: an object which has a collection of /ports/ such may be
+  associated with sockets.  The demo keeps ports as dummies but they
+  represent some shared resource that is non-trivial to construct.
+
+- components :: an object which is configurable and may also want to
+  use /ports/.  There is only a single component in the demo called a
+  "source".  It represents some arbitrary "code execution unit" aka
+  "user module".
+
+The *node* is really just another component but it is called out special
+here as it uses the factory to locate instances of other components,
+as directed by its configuration and in order to deliver fully formed
+"ports".  A component must inherit from
+~demo::PortuserBase~ and be listed in the node's configuration in order
+to receive its ports.
+
+This pattern is a mock of a real implementation found in [[https://github.com/brettviren/zio][ZIO]] which
+uses a [[https://brettviren.github.io/zio/node.html][zio::Node]] to create and link [[https://brettviren.github.io/zio/port.html][zio::Port]] instances either
+directly or automatically with the help of a [[https://brettviren.github.io/zio/peer.html][zio::Peer]] performing
+distributed network discovery.
+
+
+* Codegen
+  :PROPERTIES:
+  :CUSTOM_ID: codegen
+  :END:
+
+This section provides a tour of the types of code generation commands
+used to produce the bulk of the demo's code and configuration.  The
+tour focuses on the [[file:demo/generate.sh][generate.sh]] script.  This script runs its commands
+from the [[file:demo/][demo/]] directory and that should be taken into consideration
+when reading excerpts of the script which are shown below.
+
+** C++ configuration types 
+   :PROPERTIES:
+   :CUSTOM_ID: gen-avro
+   :END:
+
+User code should not be burdened with validating and interpreting a
+configuration byte stream or even a dynamic C++ object like
+~nlohman::json~.  Instead, with ~cogs~ the user code receives a fully
+typed C++ ~struct~, thus guaranteeing at least valid object structure.
+
+A configuration ~struct~ is produced in this demo using Avro CPP code
+generator.  It consumes Avro schema files which are produced from the
+demo's Jsonnet model in [[file:demo/demo-avro.jsonnet][demo-avro.jsonnet]] using the ~moo~ tool:
+
+#+call: grep("Compiling Avro", "demo/generate.sh", 5) :wrap "src shell"
+
+#+RESULTS:
+#+begin_src shell
+echo "Compiling Avro schema files"
+moo compile -m . demo-avro.jsonnet
+echo "Generating Avro code"
+for n in *_avro.json; do
+    avrogencpp -n democfg -i $n -o $(basename $n .json).hpp && rm $n
+done     
+#+end_src
+
+one resulting file is at [[file:demo/node_avro.hpp][node_avro.hpp]].
+
+Note, we must give the C++ ~namespace~ on this command line.  It is also
+used elsewhere and is a case where some of the model "leaks" out of
+the otherwise "sole source of truth", the Jsonnet.  Work is needed to
+correct this.
+
+The content of Jsonnet file [[file:demo/demo-avro.jsonnet][demo-avro.jsonnet]] is:
+
+#+include: demo/demo-avro.jsonnet src jsonnet
+
+Compiling to Avro schema is particularly easy since that format is
+JSON.  The ~moc.avro~ "base schema" provided to the application schema
+functions, eg ~node()~ cause Avro JSON to be output.  Instead passing
+another base schema, eg, ~moc.pbuf~, would produce a data structure
+compliant with Protobuf schema which may the be applied to a suitable
+template file in order to produce a Protobuf ~.proto~ file which can be
+compiled to Protobuf C++ classes.  We'll see just this pattern in the
+next section.
+
+For these and other reasons, future work may revisit the use of Avro
+for providing the configuration ~struct~ definition.  The demo does not
+actually use Avro serialization (next section) which would make a
+change easy.
+
+** Serialization code
+   :PROPERTIES:
+   :CUSTOM_ID: gen-nljs
+   :END:
+
+While a ~cogs~ provides built-in support for JSON array or JSON stream
+files, ~cogs~ streams are ultimately some form of byte streams.  An
+intermediate representation of configuration information is provided
+in the form of a ~cogs::object~ which is simply a ~nlohmann::json~.  This
+makes implementing the built-in JSON-based ~cogs::Streams~ rather
+trivial while also provides a general purpose intermediary
+representation which isolates low and high levels of ~cogs~.  The
+~nlohmann::json~ package is further exploited by generating ~to_json()~
+and ~from_json()~ functions for every C++ type so that conversion
+between a ~cogs::object~ and its corresponding C++ ~struct~ (generated as
+above) is straight-forward.
+
+This C++ code is generated as:
+
+#+call: grep("Rendering", "demo/generate.sh", 1) :wrap "src shell"
+
+#+RESULTS:
+#+begin_src shell
+echo "Rendering nlohmann::json serialization code"
+moo render-many demo-render.jsonnet
+#+end_src
+
+The [[file:demo/demo-render.jsonnet][demo-render.jsonnet]] file holds:
+
+#+include: demo/demo-render.jsonnet src jsonnet
+
+It is somewhat similar to ~demo-avro.jsonnet~ shown above and even uses
+the same "base schema" as used to generate Avro schema.  However,
+instead of providing Avro schema files which must be post-processed by
+~avrogencpp~, it provides information that may be directly consumed and
+applied against templates by the ~moo~ tool in order to produce all C++
+code files in one go.  The generated NLJS C++ file for a "node" is at
+[[file:demo/node_nljs.hpp][~node_nljs.hpp~]]
+
+
+** Configuration stream
+   :PROPERTIES:
+   :CUSTOM_ID: gen-cfg
+   :END:
+
+We finally generate an example ~cogs~ configuration stream in the form
+of a JSON file holding an array.  This file is created from Jsonnet by
+~moo~:
+
+#+call: grep("Compiling config", "demo/generate.sh", 1) :wrap "src shell"
+
+#+RESULTS:
+#+begin_src shell
+echo "Compiling configuration to cogs stream file"
+moo compile -D model demo-config.jsonnet > demo-config.json
+#+end_src
+
+The [[file:demo/demo-config.json][demo-config.json]] file is what was used above to run the demo.  It
+is not long and so is included here:
+
+#+include: demo/demo-config.json src json
+
+You can see the paired objects, each preceded by what will be come a
+~demo::ConfigHeader~ followed a an object of a specific type
+corresponding to the component named in the preceding header.
+
+Note, the choice of ordering is intentional.  It leads to the
+construction and configuration of the ~demoSource~ prior to the use of
+this component inside the node.  That use calls back to the component
+in order to pass in the requested "port" objects.
+
+* Schema
+  :PROPERTIES:
+  :CUSTOM_ID: schema
+  :END:
+
+This section describes how to develop schema.  It first describes the
+layer of "application schema" and "abstract base schema".  It then
+illustrates the elements of the the latter and walks through an
+example of the former.
+
+** Layers
+   :PROPERTIES:
+   :CUSTOM_ID: schema-layers
+   :END:
+
+The demo assumes two layers or schema.  The lowest is called an
+"abstract base schema".  Strictly speaking it is a specification of a
+set of function names and their arguments.  The demo then provides a
+number of implementations of this base schema.  A implementation of a
+base schema function then returns a corresponding data structure that
+adheres to the schema vocabulary of a particular domain.  
+
+For example, one base schema implementation provides structures
+suitable for directly producing Avro schema JSON.  Another provides
+structures which adhere to JSON Schema vocabulary.  Another example
+given above is one that produces structure that may be applied to a
+~message.proto.j2~ template to produce Protobuf ~.proto~ file that can
+then be compiled into C++ classes via ~protoc~.
+
+Using these primitive base functions, an application developer writes
+the next layer of functions which emit schema that describes the
+specific data types required by the developers components.  
+
+The next section describes the functions provided by a base schema
+followed by a tour of the application level schema for the
+configuration used by the "node" component in the ~cogs~ demo.
+
+** Base schema
+   :PROPERTIES:
+   :CUSTOM_ID: base-schema
+   :END:
+
+The base schema in its abstract form is a set of Jsonnet function
+prototypes which are summarized here.  An implementation of an
+abstract function is expected to return a description of the type
+named by the function in some *domain vocabulary*.  For example the demo
+provides one base implemented for the [[file:demo/avro-schema.jsonnet][Avro schema]] domain and one for
+that of [[file:demo/json-schema.jsonnet][JSON Schema]].
+
+Domains will differ in what they can meaningfully accept.  This means
+that some domains may ignore some arguments to their functions.
+Furthermore, some arguments are optional which are indicated by
+setting default value to Jsonnet ~null~.  A domain may either provide a
+default inside the function body or the argument shall be ignored (no
+~null~ values should "leak out" from the functions).
+
+The abstract base schema functions are:
+
+- ~boolean()~ :: a Boolean type
+
+- ~number(dtype, extra={})~ :: a numeric type.  The ~dtype~ argument should
+  provide specific type information using Numpy codes (eg ~i4~ for C++
+  ~int~, ~u2~ for C++ ~uint16_t~).  The ~extra~ may specify JSON Schema
+  constraints.
+
+- ~bytes(encoding=null, media_type=null)~ :: a sequence of byte values
+
+- ~string(patern=null, format=null)~ :: a string type, ~pattern~ and
+  ~format~ are JSON Schema arguments specifying a regular expression or
+  a named format that a valid string must match.
+
+- ~field(name, type, default=null, doc=null)~ :: an named and typed
+  element in the context of a ~record~.  If the type is not scalar (eg,
+  is a *record*) then ~type~ should be given as the name of the type.  The
+  ~default~ may provide a default *value* of this field.  The ~doc~ provides
+  a brief English description of the meaning of the field.
+
+- ~record(name, fields=[], doc=null)~ :: a type which aggregates fields.
+  This corresponds to a JSON object or a C++ ~struct~ or ~class~, etc.
+  The ~fields~ array is a sequence of objects returned from the ~field()~
+  function (from the same domain).
+
+- ~sequence(type)~ :: an ordered sequence holding elements of type ~type~.  
+
+- ~enum(name, symbols, default=null, doc=null)~ :: an enumerated type.
+  The ~symbols~ is an array of string literals naming the enumerated
+  values.  The ~default~ may specify an enumerated value to be used if
+  otherwise not specified.
+
+** Node schema
+   :PROPERTIES:
+   :CUSTOM_ID: node-schema
+   :END:
+
+The concept of a "node" in this demo has been descried above.  Here we
+examine the [[file:demo/node-schema.jsonnet][node-schema.jsonnet]] file as an example of an
+application-level schema.  
+
+First we look at the high-level structure of the file:
+
+#+begin_src jsonnet
+function(schema) {
+    // defines types
+    types: [ typeA, typeB, ...]
+}
+#+end_src
+
+This Jsonnet compiles down to a single function object which takes the
+argument ~schema~ which provides a set of base schema functions such as
+described in the previous sections.  The primary result of this
+function is to return a Jsonnet object (~{...}~) which contains an
+attribute ~types~ holding an array of objects describing types
+constructed through calls to functions provided by ~schema~.
+
+Looking at the first few lines:
+
+#+call: grep("local re", "demo/node-schema.jsonnet", 2) :wrap "src jsonnet"
+
+#+RESULTS:
+#+begin_src jsonnet
+local re = import "re.jsonnet";
+function(schema) {
+    local ident = schema.string(pattern=re.ident_only),
+#+end_src
+
+Here, the Jsonnet file [[file:demo/re.jsonnet][re.jsonnet]] is imported.  It contains a set of
+regular expressions that are to be used to constrain the validity of
+strings in the schema.  For example it begins with:
+
+#+call: grep("{", "demo/re.jsonnet", 3) :wrap "src jsonnet"
+
+#+RESULTS:
+#+begin_src jsonnet
+{
+    // Basic identifier (restrict to legal C variable nam)
+    ident: '[a-zA-Z][a-zA-Z0-9_]*',
+    ident_only: '^' + self.ident + '$',
+#+end_src
+
+Thus a string with ~pattern~ set to ~ident~ may be validated to hold only
+a limited alphanumeric content.  
+
+Back to ~node-shcema.jsonnet~, we ~ident~ defined as a string with a
+pattern ~re.ident_only~ as a Jsonnet ~local~.  This means the variable is
+temporary and known only in the scope of the object.  This lets it be
+referred to simply by the name ~ident~ later.
+
+Next we find an example of an ~enum~ and a ~record~ which describe a "link":
+
+#+call: grep("local ltype", "demo/node-schema.jsonnet", 6) :wrap "src jsonnet"
+
+#+RESULTS:
+#+begin_src jsonnet
+    local ltype = schema.enum("LinkType", ["bind","connect"], default="bind",
+                         doc="How a port links to an address"),
+    local link = schema.record("Link", fields= [
+        schema.field("linktype", "LinkType",
+                doc="The socket may bind or connect the link"),
+        schema.field("address", address, 
+                doc="The address to link to")
+#+end_src
+
+A "link" is intended to generalize the concept of a socket ~bind()~ or a
+~connect()~ with an "address".  In a real system like ZIO, an address is
+in the form of a URL like ~tcp://127.0.0.1:5678~ for direct ZeroMQ
+addressing or ~zyre://nodename/portname~ for automated network peer
+discovery.
+
+Next we come to a "port":
+
+#+call: grep("local port", "demo/node-schema.jsonnet", 5) :wrap "src jsonnet"
+
+#+RESULTS:
+#+begin_src jsonnet
+    local port = schema.record("Port", fields=[
+        schema.field("ident", ident,
+                doc="Identify the port uniquely in th enode"),
+        schema.field("links", schema.sequence("Link"), 
+                doc="Describe how this port should link to addresses"),
+    ], doc="A port configuration object",),
+#+end_src
+
+A port is another ~record~ with an identifier (name) of a type ~ident~
+which we defined above.  That is, a string which may be validated
+against a regular expression.  The second field is ~links~ which is a
+~sequence~.  In ZIO a port corresponds to a ZeroMQ socket which may have
+a multitude of both ~bind()~ and ~connect()~ links.
+
+Next we define the part of the node configuration which describes what
+a node needs to know in order to interact with a component:
+
+#+call: grep("local comp", "demo/node-schema.jsonnet", 9) :wrap "src jsonnet"
+
+#+RESULTS:
+#+begin_src jsonnet
+    local comp = schema.record("Comp", fields=[
+        schema.field("ident", ident, 
+                doc="Identify copmponent instance uniquely in the node"),
+        schema.field("type_name", ident, 
+                doc="Identify the component implementation"),
+        schema.field("portlist", schema.sequence(ident), 
+                doc="Identity of ports required by component"),
+        schema.field("config", schema.string(), 
+                doc="Per instance configuration string used by node")
+    ], doc="An object used by the node to partly configure a component"),
+#+end_src
+
+The first two fields are identifiers used to look up the component
+using the factory (ie, matching what is also provided to ~main()~ in the
+header object).  The ~portlist~ is a sequence of identifiers which must
+mach those used in defining a ~Port~ above.  This required consistency
+can be enforced by Jsonnet when generating actual configuration
+objects as described in the next section.  And, finally, an arbitrary
+extra string is provided which the demo does not actually use for
+anything.  It may be used by the node to interpret some special action
+on the component (eg, "ignore" or something).
+
+Penultimately, we get to the top level of the "node" schema:
+
+#+call: grep("local node", "demo/node-schema.jsonnet", 7) :wrap "src jsonnet"
+
+#+RESULTS:
+#+begin_src jsonnet
+    local node = schema.record("Node", fields=[
+        schema.field("ident", ident,
+                doc="Idenfity the node instance"),
+        schema.field("portdefs", schema.sequence("Port"), 
+                doc="Define ports on the node to be used by components"),
+        schema.field("compdefs", schema.sequence("Comp"),
+                doc="Define components the node should instantiate and configure"),
+    ], doc="A node configures ports and components"),
+#+end_src
+
+This defines a ~record~ type ~Node~ with fields meant to hold the port and
+component definitions.
+
+And, finally, the "return" value collects all the types:
+
+#+call: grep("types:", "demo/node-schema.jsonnet", 2) :wrap "src jsonnet"
+
+#+RESULTS:
+#+begin_src jsonnet
+    types: [ ltype, link, port, comp, node ],
+}
+#+end_src
+
+** Configuration objects
+
+#+begin_quote
+This portion is still a work in progress:
+
+- [ ] make a base schema that generates *structures of functions* which in turn may be called to define the configuration object.
+
+- [ ] using existing JSON Schema base schema to validate these objects.
+#+end_quote
+
