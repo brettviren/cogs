@@ -1,3 +1,19 @@
+* schema
+
+schema is a data structure
+
+which may be interpreted 
+
+as describing the structure of data
+
+(including that of schema)
+
+* Categories of schema interpretation
+
+- translating :: ~interpret(schema)~ $\to$ ~schema~
+- generating :: ~interpret(schema)~ $\to$ data
+- validating :: ~interpret(schema, data)~ $\to$ /true/ | /false/
+
 * requirements
 
 - well structured configuration information (object schema)
