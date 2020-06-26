@@ -28,7 +28,7 @@ following elements:
   and uses [[https://github.com/DUNE-DAQ/ers][ERS]] to report issues and logging.
 
 In C++ a configuration object is an instance of a ~cogs::object~ which
-is a [[https://github.com/nlohmann/json][~nlohmann::json~]] object.
+is a [[https://github.com/nlohmann/json][nlohmann::json]] object.
 
 * Demo
 

@@ -5,6 +5,10 @@ local dtypes = {               // fixme: need to flesh out
     f8: "number",
 };
 local objif(key, val) = if std.type(val)=="null" then {} else {[key]:val};
+local builtins(t) = (t == "boolean") || (t == "string") || (t == "number") || (t == "integer") || (t == "field") || (t == "object") || (t == "array");
+local builtin(t) = if std.type(t) == "string" then builtins(t) else builtins(t.type);
+
+local tn(t) = if builtin(t) then t else {"$ref":"#/definitions/"+t};
 {
     
     boolean():: {type: "boolean"},
@@ -32,26 +36,28 @@ local objif(key, val) = if std.type(val)=="null" then {} else {[key]:val};
     // constrains the string to a fixed set formats ("uri",
     // "date", etc).
     string(pattern=null, format=null):: {
-        type: "string" } + objif("patern", pattern) + objif("format", format),
+        type: "string" } + objif("pattern", pattern) + objif("format", format),
 
 
     // 
     field(name, type, default=null, doc=null):: {
-        what:"field", name:name, type:type}+objif("default",default)+objif("doc",doc),
+        what:"field", name:name, type:tn(type)}+objif("default",default)+objif("doc",doc),
 
     // A record matches a JSON object wth some set of fields.
     // Name is ignored
     record(name, fields=[], doc=null) :: {
+        _name: name,
         type: "object",
-        properties: {[f.name]: {type: f.type} for f in fields},
+        properties: {[f.name]: f.type for f in fields},
         required: [f.name for f in fields],
     }+objif("doc",doc),
 
     // A sequence in JSON Schema is an array
-    sequence(type):: { type:"array", items:type, },
+    sequence(type):: { type:"array", items:tn(type), },
     
     // Like record, enum does not have a name
     enum(name, symbols, default=null, doc=null):: {
+        _name: name,
         type:"string", enum:symbols}+objif("default",default)+objif("doc",doc),
 
 }

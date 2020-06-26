@@ -624,11 +624,28 @@ And, finally, the "return" value collects all the types:
 
 ** Configuration objects
 
-#+begin_quote
-This portion is still a work in progress:
+The demo generates a configuration stream (JSON array) with
+[[file:demo/demo-config.jsonnet][demo-config.jsonnet]].  It defines two top level attributes: ~model~ which
+provides the configuration sequence and ~schema~ which is a sequence of
+objects in JSON Schema vocabulary.
 
-- [ ] make a base schema that generates *structures of functions* which in turn may be called to define the configuration object.
+The configuration stream can first be validated with ~moo~:
 
-- [ ] using existing JSON Schema base schema to validate these objects.
-#+end_quote
+#+begin_example
+moo validate --sequence \
+  -S schema -s demo/demo-config.jsonnet \
+  -D model demo/demo-config.jsonnet
+#+end_example
+
+This tells ~moo~ to assume both the named model and schema are actually
+each a sequence of model or schema, respectively and then to test each
+pair one by one.  Success is marked by a ~null~ for each.  Failure will
+be greeted with information indicating where the model is invalid.
+
+When valid the model may be compiled into a form that can be consumed
+as a ~cogs~ stream:
+
+#+begin_example
+moo compile -D model demo/demo-config.jsonnet > demo/demo-config.json
+#+end_example
 
