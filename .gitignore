@@ -6,3 +6,7 @@ cut
 .envrc
 .direnv
 install
+ltximg
+auto
+README.html
+pres.tex

@@ -1,31 +1,219 @@
-* schema
+#+title: \cogs
+#+author: Brett Viren
+#+subtitle: Configuration Object Generation System
+#+latex_header: \usepackage{xspace}
+#+latex_header: \usepackage{libertine}
+#+latex_header: \usepackage{unicode-math}
+#+latex_header: \usepackage[utf8]{inputenc}
+#+latex_header: \usepackage{fontawesome}
+#+latex_header: \usetheme{Boadilla}
+#+latex_header: \setbeamertemplate{navigation symbols}{}
+#+latex_header: \hypersetup{colorlinks}
+#+latex_header: \setbeamerfont{alerted text}{series=\bfseries}
+#+latex_header: \newcommand{\cogs}{\faGear{}\texttt{cogs}\faGear{}\xspace}
+#+latex_header: \newcommand{\moo}{\texttt{moo}\xspace}
+#+options: ':t
 
-schema is a data structure
+* Some requirements for a configuration system
 
-which may be interpreted 
+Configuration information:
 
-as describing the structure of data
+- must be *valid*
+  - well defined structure
+  - constraints on values
+  - valid-by-construction patterns
+  - centralized validation methods
 
-(including that of schema)
+- is needed in *multiple contexts*
+  - contract between producers and consumers
+  - authoring, displaying, storing, serializing, native code types
+
+- must support *varied and changing forms*
+  - many types of applications and services
+  - some common "base" for implementing "roles" 
+  - application- and instance-specific variety
+  - evolution of structure and values over time
+
+* The \cogs approach
+
+** schema
+
+Define formal *schema* to describe structure and constraints.
+
+** codegen
+
+Generate code to validate, produce, transport and consume configuration.
+
+** correctness
+
+Enable the pattern [[https://en.wikipedia.org/wiki/Single_source_of_truth]["single source of truth" (SSOT)]].
+
+** automate
+
+Minimize human effort and the chaos it brings.
+
+* \cogs definition of schema
+
+#+begin_center
+\LARGE
+
+a *schema* is a *data structure*
+
+which may be *interpreted* 
+
+as *describing* the *structure of data*
+
+\normalsize
+
+
+( /including that of schema!/ )
+#+end_center
 
 * Categories of schema interpretation
 
-- translating :: ~interpret(schema)~ $\to$ ~schema~
-- generating :: ~interpret(schema)~ $\to$ data
-- validating :: ~interpret(schema, data)~ $\to$ /true/ | /false/
+\Large
 
-* requirements
+\vfill
 
-- well structured configuration information (object schema)
-- developers define structure their code needs
-- deliver configuration object to application (serialization)
-- automate object parsing and validation 
-- anticipate needs of appfmk and non-appfmk apps
-- low software dependencies
+- ~translate(schema)~ $\to$ ~schema~
 
-* configuration stream
+- ~codegen(schema, template)~ $\to$ ~code~
 
-A configuration is delivered as an ordered sequence of objects (stream).
+- ~validate(schema, data)~ $\to$ /true/ | /false/
+
+\vfill
+
+\scriptsize
+
+
+These functions are largely provided to \cogs the [[https://github.com/brettviren/moo][\moo]] tool.
+
+
+* Defining schema
+
+
+\cogs supports authoring schema with functions
+of an *abstract base schema* in the [[https://jsonnet.org/][Jsonnet]] data templating language[fn:other].
+
+\footnotesize
+
+#+include: pres/simple-schema.jsonnet src jsonnet
+
+\normalsize
+
+- The resulting abstract /application-level/ schema defines a *string type* taking a *valid value* that must match the given pattern.
+
+- When a concrete ~schema~ object from some *schema domain* is provided it will result in a concrete schema.
+
+
+[fn:other] \cogs (via \moo) also supports defining schema in other
+languages (JSON, YAML, INI, XML or languages that generate these) but
+these lack support for the abstract base schema.
+
+* Larger Schema Example
+
+Describe the configuration for a "node" from the \cogs [[https://brettviren.github.io/cogs/demo.htm][demo]].
+
+\vfill
+
+\footnotesize
+
+#+begin_src jsonnet
+function(schema) {
+  // ... other locals ...
+
+  local node = schema.record("Node", fields=[
+      schema.field("ident", ident,
+              doc="Idenfity the node instance"),
+      schema.field("portdefs", schema.sequence("Port"), 
+              doc="Define ports used by components"),
+      schema.field("compdefs", schema.sequence("Comp"),
+              doc="Describe components needing ports"),
+  ], doc="A node configures ports and components"),
+
+  types: [ ltype, link, port, comp, node ],
+}
+#+end_src
+
+\vfill
+
+* Abstract base schema 
+
+\footnotesize
+
+#+include: pres/simple-schema.jsonnet src jsonnet
+
+\normalsize
+
+The ~schema~ object is used as a OO "abstract base class" instance to
+define abstract /application-level/ schema.  
+
+\cogs includes these concrete *domain schema*:
+
+- ~avro-schema.jsonnet~ for codegen with [[https://avro.apache.org/docs/current/api/cpp/html/index.html][Avro CPP]] and ~moo~ using
+  serialization provided by [[https://github.com/nlohmann/json][~nlohmann::json~]].
+- ~json-schema.jsonnet~ for object validation via [[https://json-schema.org/][JSON Schema]] and ~moo~.
+
+\footnotesize
+
+Possible future domain schema:
+
+- support for Protobuf / Cap'N Proto schema depending on RPC choices.
+- Jsonnet functions for valid-by-construction configuration authoring.
+
+* \moo
+
+...provides a [[https://github.com/brettviren/moo][Python3 CLI and module]] for processing of schema
+defined in Jsonnet, JSON, XML, YAML, INI, etc, validation of objects
+in the same languages and template-based file generation using [[https://jinja.palletsprojects.com/][Jinja2]].
+
+\footnotesize
+
+#+begin_example
+$ moo --help
+Usage: moo [OPTIONS] COMMAND [ARGS]...
+
+  moo command line interface
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  compile      Compile a model to JSON
+  imports      Emit a list of imports required by the model
+  many         Render many files
+  render       Render a template against a model.
+  render-many  Render many files for a project.
+  validate     Validate a model against a schema
+#+end_example
+
+\tiny \moo essentially replaces a large set of other tools (~jsonnet~, ~jq~, ~j2~, ~grep~, ~awk~, etc) and the shell scripting that would be needed to connect them.
+
+* \cogs package
+
+\vfill
+
+- configuration stream :: methods for *deserialization* of configuration
+  objects from multiple sources and formats.
+- configurable base :: an abstract base mixin class for user code to
+  receive *dynamically or statically typed* configuration objects.
+- tech opinions :: ERS for exceptions, ~nlohmann::json~ for dynamic typed
+  intermediate data representation, Avro for C++ config ~struct~ types.
+- non-trival demo :: component-based mocked framework and main
+  application demonstrating \cogs ([[https://brettviren.github.io/cogs/demo.html][link to doc]]).
+
+\vfill
+
+\scriptsize
+
+Some current elements of demo are general and will be factored into
+\cogs or \moo.
+
+Choice of Avro being revisited and may be influenced by choice of RPC.
+
+* \cogs configuration stream
+
+A configuration is delivered as an ordered sequence (stream) of objects.
 
 #+begin_src c++
   std::string uri = "....";
@@ -33,42 +221,57 @@ A configuration is delivered as an ordered sequence of objects (stream).
   cogs::object o = s->pop();
 #+end_src
 
-The ~make_stream()~ factory returns steam based on parsing URI.
+- The ~make_stream()~ factory returns steam based on parsing URI.
 
-The returned ~unique_ptr<cogs::Stream>~ is abstract.
+- The returned ~unique_ptr<cogs::Stream>~ is abstract.
 
-Exceptions defined by ERS may be thrown.
+- ~cogs::object~ is a ~typedef~ for ~nlohmann::json~ and provides a dynamic typed
+  intermediate data representation layer.
 
-* stream types
+- Exceptions defined by ERS may be thrown if stream is corrupt or
+  an attempt is made to ~pop()~ past its end.
 
-URI batteries included:
+* \cogs stream types
 
-- ~file://config.json~ :: a JSON array of configuration objects
-- ~file://config.jstream~ :: A [[https://en.wikipedia.org/wiki/JSON_streaming][JSON Stream]] of configuration objects
+\vfill
+
+URIs with built-in support:
+
+- ~file://config.json~  :: a JSON array of configuration objects
+- ~file://config.jstream~  :: A [[https://en.wikipedia.org/wiki/JSON_streaming][JSON Stream]] of configuration objects
+
+\vfill
 
 Potential future stream types URIs:
 
-- ZeroMQ/ZIO port spec (auto-discovery)
-- RPC server address (hardwired) 
+- Files via ~https://~ addressing.
+- RPC server address (eg, hardwired host/port) 
+- ZeroMQ/ZIO port spec (eg, direct or auto-discovered address)
+- An upgraded factory would allow streams provided by plugins.
 
-* apply configuration
+\vfill
 
-An application component receives configuration object through a *virtual mixin* class inheritance:
+* \cogs delivery of configuration to component
 
-** A *typeless* interface 
+An application component receives configuration object by inheriting
+from a *virtual mixin* class and implementing the method:
 
-The ~cogs::object~ is type ~nlohmann::json~.
+** A *dynamic typed* interface
 
+The user code must interpret a *dynamic object*.
+
+\scriptsize
 #+begin_src c++
 struct ConfigurableBase {
-    virtual void configure(object obj) = 0;
+    virtual void configure(cogs::object obj) = 0;
 };
 #+end_src
 
-** A *fully typed* interface
+** A *static typed* interface
 
-The template type is the components C++ ~struct~ holding config info
+The user code receives C++ ~struct~ generated from *schema*, eg via Avro.
 
+\scriptsize
 #+begin_src c++
 template<class CfgObj>
 struct Configurable : virtual public ConfigurableBase {
@@ -76,79 +279,47 @@ struct Configurable : virtual public ConfigurableBase {
 };
 #+end_src
 
-* Object Serialization
+* \cogs demo stream
 
-Configuration info passes through at least these life cycle stages:
+The \cogs [[https://brettviren.github.io/cogs/demo.html#config-stream][demo stream]] assumes a pair-wise ordering:
 
-- bytes in a stream following valid structure
-- type free ~cogs::object~ in memory
-- full C++ ~struct~ type specific to component (~MyCfgObj~)
+|------------------------------------------|
+| component 1: ~democfg::ConfigHeader~       |
+|------------------------------------------|
+| component 1: corresponding config object |
+|------------------------------------------|
+| ...                                      |
+|------------------------------------------|
+| component N: ~democfg::ConfigHeader~       |
+|------------------------------------------|
+| component N: corresponding config object |
+|------------------------------------------|
 
-Every type of ~MyCfgObj~ is a C++ struct that is *generated* based on
-developer-provided *schema*.
+Each pair:
 
-* Schema
+- header :: identifies a component *implementation* and *instance* name
+- payload :: provides config object for the identified component
 
-A *schema* is *structured data* that describes the *structure of other data*.
 
-For cogs, we may provide schema in many languages:
+\cogs supports other choices for stream-level interpretation.
 
-- python :: ~dict~, ~list~, ~str~, ~int~, ~float~, ~bool~
-- JSON :: object, array, string, number, Boolean
-- Jsonnet :: ~record()~, ~sequence()~, ~string()~, ~number()~, ~boolean()~
+* Some work still needed for DUNE FD DAQ
 
-Given a schema, we may:
+- The concrete domain schema (JSON Schema and Avro schema) should be
+  moved into \moo.
 
-- facilitate creation of configuration objects
+- A domain schema to generate Jsonnet functions to then use produce
+  valid-by-construction configuration object needs inventing.
 
-- validate created configuration objects
+- Integration with DUNE FD DAQ ~appfmk~ may include
+  - use of ~appfmk~ factory to construct streams, locate components
+  - provision of a configuration dispatch method method
 
-- generate code to operate on valid objects
+- A choice of RPC technology for larger CCM may influence replacement
+  of Avro (eg with Protobuf, Cap'N Proto, etc). 
 
-* Schema technology
+- Understand if \cogs and \moo approach can help with connecting CCM
+  RPC to ~appfmk~.
 
-~cogs~ selects:
-
-- authoring :: [[https://jsonnet.org/][Jsonnet]]
-- validation :: [[http://json-schema.org/][JSON Schema]]
-- generation :: [[https://avro.apache.org/][Avro Schema]] (may revisit)
-- tooling :: [[https://github.com/brettviren/moo][moo]]
-
-* Authoring 
-
-~cogs~ recommends authoring schema in Jsonnet language
-
-- simple, easy to learn configuration language
-- existing nearby packages use it (PTMP, Wire-Cell)
-- super-set of JSON but not as painful for humans to write and read
-- pure-functional, LISP-esque language gives just enough power
-
-With ~moo~ we may write generalize schema in Jsonnet which we may *compile* to useful forms:
-
-- JSON Schema for validation
-- Avro Schema for code generation
-- (possible future) SQL for table creation, etc
-
-* Example Schema
-
-#+begin_src jsonnet
-  local node = s.record("Node", fields=[
-      s.field("ident", ident,
-              doc="Idenfity the node instance"),
-      s.field("portdefs", s.sequence("Port"), 
-              doc="Define ports on the node to be used by components"),
-      s.field("compdefs", s.sequence("Comp"),
-              doc="Define components the node should instantiate and configure"),
-  ], doc="A node configures ports and components"),
-#+end_src
-
-* Validating
-
-JSON Schema
-
-* Code Generation
-
-Avro Schema
-
-* Creating streams
-
+- Understand larger configuration issues (authoring, version control,
+  schema evolution, wholesale validation).
