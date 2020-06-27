@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-06-25 Thu 15:19 -->
+<!-- 2020-06-27 Sat 17:23 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>cogs ⚙ demo</title>
@@ -289,7 +289,7 @@ for the JavaScript code in this tag.
 <li><a href="#schema-layers">Layers</a></li>
 <li><a href="#base-schema">Base schema</a></li>
 <li><a href="#node-schema">Node schema</a></li>
-<li><a href="#org022a5e0">Configuration objects</a></li>
+<li><a href="#org6c37191">Configuration objects</a></li>
 </ul>
 </li>
 </ul>
@@ -307,17 +307,17 @@ one way to make use of <code>cogs</code>.  It includes:
 <ul class="org-ul">
 <li>A mocked up framework, application and components.</li>
 <li>Schema to generate configuration classes.</li>
-<li>Example cogs configuration stream file.</li>
-<li>Simple tooling to run generation.</li>
+<li>Example <code>cogs</code> configuration stream file.</li>
+<li>Simple tooling to rerun code generation.</li>
 <li>Integration into <code>cogs</code> build system.</li>
 </ul>
 
 <p>
 This document describes how to build and run the demo.  It then gives
 a tour of the mocked framework to understand one possible way to allow
-<code>cogs</code> to be used.  It then gives details on the code generation steps
-and ends with a section that uses the demo's schema to illustrate how
-one may write their own.
+<code>cogs</code> to be used.  Details on the code generation steps come next and
+it ends with a section that uses the demo's schema to illustrate how
+one may develop schema for applications.
 </p>
 </div>
 </div>
@@ -325,6 +325,9 @@ one may write their own.
 <div id="outline-container-build" class="outline-2">
 <h2 id="build">Build</h2>
 <div class="outline-text-2" id="text-build">
+<p>
+This section describes issues about building the demo code. 
+</p>
 </div>
 
 <div id="outline-container-prereq" class="outline-3">
@@ -373,7 +376,7 @@ You should be rewarded with:
 </div>
 
 <pre class="example">
-2020-Jun-25 15:19:46,004 INFO [main(...) at unknown/demo/cogs-demo.cpp:12] usage: ./install/bin/cogs-demo &lt;uri&gt;
+
 </pre>
 </div>
 </div>
@@ -393,17 +396,7 @@ prerequisites are satisfied, it may be regenerated:
 </div>
 
 <pre class="example">
-codegen in /home/bv/dev/cogs/demo
-Rendering nlohmann::json serialization code
-generating ./node_nljs.hpp:
-generating ./comp_nljs.hpp:
-generating ./head_nljs.hpp:
-Compiling Avro schema files
-Generating Avro code
-Validating configuration
-null
-null above means okay!
-Compiling configuration to cogs stream file
+
 </pre>
 
 <p>
@@ -426,21 +419,7 @@ The demo provides a ready made <code>cogs</code> configuration stream file:
 </div>
 
 <pre class="example">
-making stream for file://demo/demo-config.json
-main:		lookup: [demoSource]: "mycomp_source1"
-Source:	constructing
-main:		configure: [demoSource]: "mycomp_source1"
-Source:	configured to send 42 things
-main:		lookup: [demoNode]: "mynode_inst1"
-Node:		constructing
-main:		configure: [demoNode]: "mynode_inst1"
-Node:		mynode1
-Node:			making port: src
-Node:				link: bind'ing to: 
-Node:		lookin up component: mycomp_source1
-Node:			set port: src
-Source:	given port src
-main:		configuration stream done
+
 </pre>
 
 <p>
@@ -1103,27 +1082,48 @@ And, finally, the "return" value collects all the types:
 </div>
 </div>
 
-<div id="outline-container-org022a5e0" class="outline-3">
-<h3 id="org022a5e0">Configuration objects</h3>
-<div class="outline-text-3" id="text-org022a5e0">
-<blockquote>
+<div id="outline-container-org6c37191" class="outline-3">
+<h3 id="org6c37191">Configuration objects</h3>
+<div class="outline-text-3" id="text-org6c37191">
 <p>
-This portion is still a work in progress:
+The demo generates a configuration stream (JSON array) with
+<a href="demo/demo-config.jsonnet">demo-config.jsonnet</a>.  It defines two top level attributes: <code>model</code> which
+provides the configuration sequence and <code>schema</code> which is a sequence of
+objects in JSON Schema vocabulary.
 </p>
 
-<ul class="org-ul">
-<li class="off"><code>[&#xa0;]</code> make a base schema that generates <b>structures of functions</b> which in turn may be called to define the configuration object.</li>
+<p>
+The configuration stream can first be validated with <code>moo</code>:
+</p>
 
-<li class="off"><code>[&#xa0;]</code> using existing JSON Schema base schema to validate these objects.</li>
-</ul>
-</blockquote>
+<pre class="example">
+moo validate --sequence \
+  -S schema -s demo/demo-config.jsonnet \
+  -D model demo/demo-config.jsonnet
+</pre>
+
+<p>
+This tells <code>moo</code> to assume both the named model and schema are actually
+each a sequence of model or schema, respectively and then to test each
+pair one by one.  Success is marked by a <code>null</code> for each.  Failure will
+be greeted with information indicating where the model is invalid.
+</p>
+
+<p>
+When valid the model may be compiled into a form that can be consumed
+as a <code>cogs</code> stream:
+</p>
+
+<pre class="example">
+moo compile -D model demo/demo-config.jsonnet &gt; demo/demo-config.json
+</pre>
 </div>
 </div>
 </div>
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Brett Viren</p>
-<p class="date">Created: 2020-06-25 Thu 15:19</p>
+<p class="date">Created: 2020-06-27 Sat 17:23</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
