@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-06-27 Sat 17:23 -->
+<!-- 2020-06-27 Sat 17:27 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>cogs ⚙ demo</title>
@@ -289,7 +289,7 @@ for the JavaScript code in this tag.
 <li><a href="#schema-layers">Layers</a></li>
 <li><a href="#base-schema">Base schema</a></li>
 <li><a href="#node-schema">Node schema</a></li>
-<li><a href="#org6c37191">Configuration objects</a></li>
+<li><a href="#org4ba618a">Configuration objects</a></li>
 </ul>
 </li>
 </ul>
@@ -376,7 +376,7 @@ You should be rewarded with:
 </div>
 
 <pre class="example">
-
+2020-Jun-27 17:27:29,698 INFO [main(...) at unknown/demo/cogs-demo.cpp:12] usage: ./install/bin/cogs-demo &lt;uri&gt;
 </pre>
 </div>
 </div>
@@ -419,7 +419,21 @@ The demo provides a ready made <code>cogs</code> configuration stream file:
 </div>
 
 <pre class="example">
-
+making stream for file://demo/demo-config.json
+main:		lookup: [demoSource]: "mycomp_source1"
+Source:	constructing
+main:		configure: [demoSource]: "mycomp_source1"
+Source:	configured to send 42 things
+main:		lookup: [demoNode]: "mynode_inst1"
+Node:		constructing
+main:		configure: [demoNode]: "mynode_inst1"
+Node:		mynode1
+Node:			making port: src
+Node:				link: bind'ing to: 
+Node:		lookin up component: mycomp_source1
+Node:			set port: src
+Source:	given port src
+main:		configuration stream done
 </pre>
 
 <p>
@@ -1082,9 +1096,9 @@ And, finally, the "return" value collects all the types:
 </div>
 </div>
 
-<div id="outline-container-org6c37191" class="outline-3">
-<h3 id="org6c37191">Configuration objects</h3>
-<div class="outline-text-3" id="text-org6c37191">
+<div id="outline-container-org4ba618a" class="outline-3">
+<h3 id="org4ba618a">Configuration objects</h3>
+<div class="outline-text-3" id="text-org4ba618a">
 <p>
 The demo generates a configuration stream (JSON array) with
 <a href="demo/demo-config.jsonnet">demo-config.jsonnet</a>.  It defines two top level attributes: <code>model</code> which
@@ -1123,7 +1137,7 @@ moo compile -D model demo/demo-config.jsonnet &gt; demo/demo-config.json
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Brett Viren</p>
-<p class="date">Created: 2020-06-27 Sat 17:23</p>
+<p class="date">Created: 2020-06-27 Sat 17:27</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
