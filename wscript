@@ -15,6 +15,8 @@ def options(opt):
                    help='Point nlohmann json install area')
     opt.add_option('--with-avro', default=None,
                    help='Set to AVRO install area')
+    opt.add_option('--with-boost', default=None,
+                   help='Set to BOOST install area (only needed by Avro)')
     
 def configure(cfg):
     cfg.load('compiler_cxx')
@@ -52,25 +54,48 @@ def configure(cfg):
     cfg.check(features='cxx cxxprogram', define_name='HAVE_AVRO',
               header='avro/Config.hh', lib=['avrocpp'],
               use='AVRO', uselib_store='AVRO', mandatory=False)
-    cfg.find_program('avrogencpp', var='AVROGENCPP', use='AVRO', mandatory=False)
+    cfg.find_program('avrogencpp', var='AVROGENCPP', use='AVRO',
+                     mandatory=False)
 
+    ## Boost is not needed directly by cogs but ERS needs it.
+    boost = getattr(cfg.options, 'with_boost', None)
+    if boost:
+        setattr(cfg.env, 'RPATH_BOOST', [osp.join(boost, 'lib')]);
+        setattr(cfg.env, 'LIBPATH_BOOST', [osp.join(boost, 'lib')]);
+        setattr(cfg.env, 'INCLUDES_BOOST', [osp.join(boost, 'include')]);
+    cfg.check(features='cxx cxxprogram', define_name='HAVE_BOOST',
+              header=['boost/filesystem/filesystem.hpp',
+                      'boost/preprocessor/preprocessor.hpp'],
+              lib=['boost_filesystem'],
+              use='BOOST', uselib_store='BOOST', mandatory=True)
 
     cfg.write_config_header('config.hpp')
     #print (cfg.env)
+    if 'HAVE_AVRO' in cfg.env:
+        print("will build demo")
+    else:
+        print("will NOT build demo")
+        
 
 def build(bld):
     bld.recurse("test")
     
+    use=['ERS','BOOST','NLJS']
+
     sources = bld.path.ant_glob('src/*.cpp');
     bld.shlib(features='cxx', includes='inc', 
               source = sources, target='cogs',
-              uselib_store='COGS', use=['ERS','NLJS'])
+              uselib_store='COGS', use=use)
     
     bld.install_files('${PREFIX}/include/cogs',
                       bld.path.ant_glob("inc/cogs/**/*.hpp"),
                       cwd=bld.path.find_dir('inc/cogs'),
+                      install_path=bld.env.PREFIX + '/lib',
                       relative_trick=True)                      
 
     from waflib.Tools import waf_unit_test
     bld.add_post_fun(waf_unit_test.summary)
-    bld.recurse("demo")
+
+
+    if 'HAVE_AVRO' in bld.env:
+        bld.recurse("demo")
