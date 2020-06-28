@@ -15,6 +15,23 @@ To rerun the demo's codegen, additionally:
 
 - moo
 
+#+begin_src dot :file deps.png :exports results
+digraph deps {
+node[shape=box]
+ERS->BOOST
+AVRO->BOOST
+cogs->ERS
+cogs->NLJS
+"cogs-demo"->cogs
+"cogs-demo"->AVRO
+"cogs-demo"->moo[style=dashed]
+moo->python
+}
+#+end_src
+
+#+RESULTS:
+[[file:deps.png]]
+
 * Environment
 
 ** Prepare
