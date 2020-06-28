@@ -49,7 +49,7 @@ This section describes issues about building the demo code.
 
 In addition to what ~cogs~ requires, the demo requires:
 
-- Avro CPO library and headers
+- Avro CPP library and headers
 
 The generated demo code is committed to the repository.  To regenerate
 it requires additionally:

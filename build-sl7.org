@@ -1,0 +1,170 @@
+#+title: Installation notes for SL7
+
+* Overview
+
+The dependencies for cogs are few.  cogs as a library needs:
+
+- ERS 
+- ~nlohmann::json~
+
+To build the cogs demo, additionally:
+
+- Avro CPP
+
+To rerun the demo's codegen, additionally:
+
+- moo
+
+* Environment
+
+Here, source will be built from and install relative to a ~$TOP~
+directory.  Before any special environment setup define:
+
+#+begin_example
+  $ export TOP=$(pwd)
+  $ export PATH=$TOP/bin
+  $ export LD_LIBRARY_PATH=$TOP/lib
+#+end_example
+
+For those lucky enough not to have to use SL7 as a native OS they may
+degrade their usual environment using a minimal Docker or Singularity
+container and Fermilab UPS products from CVMFS to fill in the gaps by
+running something like:
+
+#+begin_example
+  $ singularity exec --bind /cvmfs /path/to/sl7.simg env -i bash --rcfile login.rc
+#+end_example
+
+The ~login.rc~ just sets ~PS1~ to something reasonable.
+
+From inside the SL7 environment, the build will piggyback these UPS
+products:
+
+#+begin_example
+  ## just for cogs
+  $ source /cvmfs/dune.opensciencegrid.org/dunedaq/DUNE/products/setup
+  $ setup ers v0_26_00 -q e19:prof
+
+  ## if Avro CPP will be built so that cogs demo may be built
+  $ setup cmake v3_17_2
+  $ setup boost v1_73_0 -q e19:prof
+
+  ## if moo will be used to regenerate cogs demo source
+  $ PRODUCTS=$PRODUCTS:/cvmfs/larsoft.opensciencegrid.org/products
+  $ setup python v3_7_2
+#+end_example
+
+* Avro CPP
+
+Avro CPP is only needed to build and run the ~cogs~ demo.  It is *not* needed for the ~cogs~ library.
+
+#+begin_example
+  $ wget http://apache.mirrors.hoobly.com/avro/avro-1.9.2/cpp/avro-cpp-1.9.2.tar.gz
+  $ tar -xf avro-cpp-1.9.2.tar.gz
+  $ mkdir avro-cpp-1.9.2/build
+  $ cd avro-cpp-1.9.2/build
+  $ cmake .. -DCMAKE_INSTALL_PREFIX=$TOP -DBoost_NO_BOOST_CMAKE=ON
+  $ make -j$(nproc) install
+#+end_example
+
+There's some garbage going on with CMake and Boost (there always some
+garbage with CMake) which is why the nonsensical ~-DBoost_NO_BOOST_CMAKE=ON~ option is required.
+
+You should now have Avro CPP codegen compiler:
+
+#+begin_example
+$ avrogencpp 
+Allowed options:
+  -h [ --help ]                       produce help message
+  -p [ --include-prefix ] arg (=avro) prefix for include headers, - for none, 
+                                      default: avro
+  -U [ --no-union-typedef ]           do not generate typedefs for unions in 
+                                      records
+  -n [ --namespace ] arg              set namespace for generated code
+  -i [ --input ] arg                  input file
+  -o [ --output ] arg                 output file to generate
+#+end_example
+
+* moo
+
+Moo is a Python package (which means Python3 as Python2 has ceased).
+The package should build from source in any of the "usual" Python
+manners.  In future it may be provided from PyPI.  Here is one example:
+
+#+begin_example
+  $ python -m venv $TOP/venv
+  $ source $TOP/venv/bin/activate
+  $ git clone https://github.com/brettviren/moo.git
+  $ pip install -e .  
+#+end_example
+
+The ~moo~ command should now be available:
+
+#+begin_example
+  $ moo
+  Usage: moo [OPTIONS] COMMAND [ARGS]...
+
+    moo command line interface
+
+  Options:
+    --help  Show this message and exit.
+
+  Commands:
+    compile      Compile a model to JSON
+    imports      Emit a list of imports required by the model
+    many         Render many files
+    render       Render a template against a model.
+    render-many  Render many files for a project.
+    validate     Validate a model against a schema
+#+end_example
+
+* Nlohmann's JSON
+
+Ultimately, this is just a single header.
+
+#+begin_example
+  $ mkdir -p $TOP/include/nlohmann
+  $ wget -O $TOP/include/nlohmann/json.hpp https://github.com/nlohmann/json/releases/download/v3.8.0/json.hpp
+#+end_example
+
+* cogs library
+
+The ~cogs~ package is built with plain [[https://waf.io/][Waf]].
+
+#+begin_example
+  $ wget -O $TOP/bin/waf https://waf.io/waf-2.0.20
+  $ chmod +x $TOP/bin/waf
+  $ waf --version
+  waf 2.0.20 (668769470956da8c5b60817cb8884cd7d0f87cd4)
+#+end_example
+
+Now cogs:
+
+#+begin_example
+  $ cd $TOP
+  $ git clone https://github.com/brettviren/cogs.git
+  $ cd cogs
+  $ waf --help
+  ## no demo
+  $ waf configure --prefix=$TOP \
+     --with-ers=$ERS_FQ_DIR \
+     --with-boost=$BOOST_FQ_DIR \
+     --with-nljs=$TOP \
+  ## with demo
+  $ waf configure --prefix=$TOP \
+     --with-ers=$ERS_FQ_DIR \
+     --with-boost=$BOOST_FQ_DIR \
+     --with-nljs=$TOP \
+     --with-avro=$TOP
+  # waf install
+#+end_example
+
+If Avro is not found, only ~cogs~ library and not the demo will be built and installed.  If the demo is built then it can be checked with:
+
+#+begin_example
+  $ cogs-demo
+  2020-Jun-27 19:54:47,027 INFO [main(...) at unknown/demo/cogs-demo.cpp:12] usage: cogs-demo <uri>
+#+end_example
+
+
+
