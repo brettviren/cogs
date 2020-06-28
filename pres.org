@@ -189,7 +189,15 @@ Commands:
 
 \tiny \moo essentially replaces a large set of other tools (~jsonnet~, ~jq~, ~j2~, ~grep~, ~awk~, etc) and the shell scripting that would be needed to connect them.
 
-* \cogs package
+* \cogs package dependencies
+
+#+ATTR_LATEX: :width 7cm 
+#+RESULTS:
+[[file:deps.pdf]]
+
+
+
+* \cogs package features
 
 \vfill
 
@@ -303,13 +311,74 @@ Each pair:
 
 \cogs supports other choices for stream-level interpretation.
 
+* Demo stream model and schema
+\footnotesize
+#+begin_src jsonnet
+  model: [
+      head("demoSource", "mycomp_source1"),
+      source(42),
+
+      head("demoNode", "mynode_inst1"),
+      node("mynode1",
+           ports=[portdef("src",[
+               link("bind","tcp://127.0.0.1:5678")])],
+           comps=[compdef("mycomp_source1", "demoSource", ["src"])]),
+  ],
+  schema: [
+      schema.head,
+      schema.comp,
+      schema.head,
+      schema.node,
+  ],
+#+end_src
+
+Details on ~schema~ array next.
+
+* Demo stream schema (more)
+
+JSON Schema requires types to be defined in a special location in the structure.  The ~compound()~ function helps prepare that.
+
+\footnotesize
+
+#+begin_src jsonnet
+local jscm = import "json-schema.jsonnet";
+local compound(types, top=null) = {
+    ret : {
+        definitions: {[t._name]:t for t in types}
+    } + if std.type(top) == "null"
+    then types[std.length(types)-1]
+    else top,
+}.ret;
+
+local schema = {
+    head: compound(head_schema(jscm).types),
+    comp: compound(comp_schema(jscm).types),
+    node: compound(node_schema(jscm).types),
+};
+#+end_src
+
+* Perform validation
+
+The ~moo~ tool can dig into arbitrary Jsonnet for schema and model and
+perform validation on a single object (default) or on an array
+(~--sequence~):
+
+#+begin_example
+  $ moo validate --sequence \
+    -S schema -s demo/demo-config.jsonnet \
+    -D model demo/demo-config.jsonnet
+#+end_example
+
+Currently returns ~null~ for success and traceback into the data
+structure if showing where the model fails to validate.
+
+
 * Some work still needed for DUNE FD DAQ
 
-- The concrete domain schema (JSON Schema and Avro schema) should be
-  moved into \moo.
+- The concrete domain schema (JSON Schema and Avro schema) are general
+  and should be moved into \moo.
 
-- A domain schema to generate Jsonnet functions to then use produce
-  valid-by-construction configuration object needs inventing.
+- Improve how to create application-level JSON Schema in Jsonnet.
 
 - Integration with DUNE FD DAQ ~appfmk~ may include
   - use of ~appfmk~ factory to construct streams, locate components

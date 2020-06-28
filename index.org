@@ -9,9 +9,11 @@ etc) or validating schema (eg JSON Schema).
 
 More info at:
 
-- cogs [[file:demo.org][demo write up]].
+- [[file:demo.org][cogs demo write up]].
 
-- overview [[file:pres.pdf][presentation PDF]].
+- [[file:pres.pdf][overview presentation PDF]].
+
+- [[file:build-sl7.org][build notes for SL7]]
 
 - [[https://github.com/brettviren/cogs][cogs github repo]]
 - [[https://github.com/brettviren/moo][moo github repo]]

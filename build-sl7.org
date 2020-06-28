@@ -15,41 +15,15 @@ To rerun the demo's codegen, additionally:
 
 - moo
 
-#+begin_src dot :file deps.png :exports results
-digraph deps {
-node[shape=box]
-ERS->BOOST
-AVRO->BOOST
-cogs->ERS
-cogs->NLJS
-"cogs-demo"->cogs
-"cogs-demo"->AVRO
-"cogs-demo"->moo[style=dashed]
-moo->python
-}
-#+end_src
 
-#+RESULTS:
 [[file:deps.png]]
 
 * Environment
 
-** Prepare
-
-Here, source will be built from and installed relative to a ~$TOP~
-directory.  Before any special environment setup define:
-
-#+begin_example
-  $ export TOP=$(pwd)
-  $ export PATH=$TOP/bin
-  $ export LD_LIBRARY_PATH=$TOP/lib:$TOP/lib64
-#+end_example
-
-The latter ~lib64~ may not be entirely required.
-
 ** Base OS
 
-If your native OS is not SL7 you can downgrade via a minimal Docker or
+This guide is for SL7 (or similar) base OS.  If your native OS is not
+SL7 one method to test this guide is with a minimal Docker or
 Singularity container and use Fermilab UPS products from CVMFS to fill
 in the gaps by running something like:
 
@@ -59,23 +33,19 @@ in the gaps by running something like:
 
 The ~login.rc~ just sets ~PS1~ to something reasonable.
 
-** UPS externals
+** Prepare
 
-In any case, from inside the SL7 environment, the build will piggyback
-these UPS products:
+Some environment setup is needed.  How much depends on how much of
+cogs to test.  A full setup script with guiding comments:
+
+#+include: build-sl7-setup.sh src shell
+
+Use like:
 
 #+begin_example
-  ## just for cogs
-  $ source /cvmfs/dune.opensciencegrid.org/dunedaq/DUNE/products/setup
-  $ setup ers v0_26_00 -q e19:prof
-
-  ## if Avro CPP will be built so that cogs demo may be built
-  $ setup cmake v3_17_2
-  $ setup boost v1_73_0 -q e19:prof
-
-  ## if moo will be used to regenerate cogs demo source
-  $ PRODUCTS=$PRODUCTS:/cvmfs/larsoft.opensciencegrid.org/products
-  $ setup python v3_7_2
+  $ mkdir /path/to/work
+  $ cd /path/to/work
+  $ source /path/to/wherever/build-sl7-setup.sh
 #+end_example
 
 * Avro CPP
@@ -121,6 +91,8 @@ manners.  In future it may be provided from PyPI.  Here is one example:
   $ git clone https://github.com/brettviren/moo.git
   $ pip install -e .  
 #+end_example
+
+Note: if using the setup script above, next time you use it this area will be activated.
 
 The ~moo~ command should now be available:
 

@@ -1,0 +1,17 @@
+digraph deps {
+        node[shape=box]
+        "cogs-demo"[label="cogs-demo\n(eg appfmk)"]
+        ERS
+        NLJS[label="NLJS\n(json.hpp)"]
+        {rank=same; AVRO; cogs; moo}
+        ERS->BOOST
+        AVRO->BOOST
+        cogs->ERS
+        cogs->NLJS
+        "cogs-demo"->cogs
+        "cogs-demo"->AVRO
+        "cogs-demo"->moo[style=dashed,label="code regen"]
+        moo->Python
+}
+
+
