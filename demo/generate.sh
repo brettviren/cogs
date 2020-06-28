@@ -16,7 +16,7 @@ for n in *_avro.json; do
 done     
 
 echo "Validating configuration"
-moo validate -S validate -s demo-config.jsonnet -D model demo-config.jsonnet
+moo validate --sequence -S schema -s demo-config.jsonnet -D model demo-config.jsonnet
 echo
 echo "null above means okay!"
 
