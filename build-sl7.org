@@ -17,19 +17,24 @@ To rerun the demo's codegen, additionally:
 
 * Environment
 
-Here, source will be built from and install relative to a ~$TOP~
+** Prepare
+
+Here, source will be built from and installed relative to a ~$TOP~
 directory.  Before any special environment setup define:
 
 #+begin_example
   $ export TOP=$(pwd)
   $ export PATH=$TOP/bin
-  $ export LD_LIBRARY_PATH=$TOP/lib
+  $ export LD_LIBRARY_PATH=$TOP/lib:$TOP/lib64
 #+end_example
 
-For those lucky enough not to have to use SL7 as a native OS they may
-degrade their usual environment using a minimal Docker or Singularity
-container and Fermilab UPS products from CVMFS to fill in the gaps by
-running something like:
+The latter ~lib64~ may not be entirely required.
+
+** Base OS
+
+If your native OS is not SL7 you can downgrade via a minimal Docker or
+Singularity container and use Fermilab UPS products from CVMFS to fill
+in the gaps by running something like:
 
 #+begin_example
   $ singularity exec --bind /cvmfs /path/to/sl7.simg env -i bash --rcfile login.rc
@@ -37,8 +42,10 @@ running something like:
 
 The ~login.rc~ just sets ~PS1~ to something reasonable.
 
-From inside the SL7 environment, the build will piggyback these UPS
-products:
+** UPS externals
+
+In any case, from inside the SL7 environment, the build will piggyback
+these UPS products:
 
 #+begin_example
   ## just for cogs
@@ -68,7 +75,7 @@ Avro CPP is only needed to build and run the ~cogs~ demo.  It is *not* needed fo
 #+end_example
 
 There's some garbage going on with CMake and Boost (there always some
-garbage with CMake) which is why the nonsensical ~-DBoost_NO_BOOST_CMAKE=ON~ option is required.
+garbage with CMake) which is why the nonsensical ~-DBoost_NO_BOOST_CMAKE=ON~ option is required here.
 
 You should now have Avro CPP codegen compiler:
 
@@ -166,5 +173,72 @@ If Avro is not found, only ~cogs~ library and not the demo will be built and ins
   2020-Jun-27 19:54:47,027 INFO [main(...) at unknown/demo/cogs-demo.cpp:12] usage: cogs-demo <uri>
 #+end_example
 
+* Tree
 
+For reference, the resulting installation tree looks like:
+
+#+begin_example
+$ tree bin include lib lib64
+bin
+├── avrogencpp
+├── cogs-demo
+└── waf
+include
+├── avro
+│   ├── AvroParse.hh
+│   ├── AvroSerialize.hh
+│   ├── AvroTraits.hh
+│   ├── buffer
+│   │   ├── Buffer.hh
+│   │   ├── BufferPrint.hh
+│   │   ├── BufferReader.hh
+│   │   ├── BufferStreambuf.hh
+│   │   ├── BufferStream.hh
+│   │   └── detail
+│   │       ├── BufferDetail.hh
+│   │       └── BufferDetailIterator.hh
+│   ├── Compiler.hh
+│   ├── Config.hh
+│   ├── DataFile.hh
+│   ├── Decoder.hh
+│   ├── Encoder.hh
+│   ├── Exception.hh
+│   ├── GenericDatum.hh
+│   ├── Generic.hh
+│   ├── Layout.hh
+│   ├── LogicalType.hh
+│   ├── NodeConcepts.hh
+│   ├── Node.hh
+│   ├── NodeImpl.hh
+│   ├── Parser.hh
+│   ├── Reader.hh
+│   ├── Resolver.hh
+│   ├── ResolverSchema.hh
+│   ├── ResolvingReader.hh
+│   ├── Schema.hh
+│   ├── SchemaResolution.hh
+│   ├── Serializer.hh
+│   ├── Specific.hh
+│   ├── Stream.hh
+│   ├── Types.hh
+│   ├── Validator.hh
+│   ├── ValidSchema.hh
+│   ├── Writer.hh
+│   └── Zigzag.hh
+├── cogs
+│   ├── configurable.hpp
+│   ├── issues.hpp
+│   ├── object.hpp
+│   └── stream.hpp
+└── nlohmann
+    └── json.hpp
+lib
+├── libavrocpp_s.a
+├── libavrocpp.so -> libavrocpp.so.1.9.2.0
+└── libavrocpp.so.1.9.2.0
+lib64
+└── libcogs.so
+
+5 directories, 50 files
+#+end_example
 
