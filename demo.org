@@ -66,7 +66,10 @@ it requires additionally:
 With prerequisites satisfied, the demo builds with the ~cogs~ library.  For example:
 
 #+begin_example
-waf configure --prefix=$(pwd)/install --with-nljs=$HOME/opt/nljs --with-ers=$HOME/opt/ers --with-avro=$HOME/opt/avro
+waf configure --prefix=$(pwd)/install \
+    --with-nljs=$HOME/opt/nljs \
+    --with-ers=$HOME/opt/ers \
+    --with-avro=$HOME/opt/avro
 waf install
 #+end_example
 
@@ -97,17 +100,6 @@ prerequisites are satisfied, it may be regenerated:
 
 #+RESULTS:
 #+begin_example
-codegen in /home/bv/dev/cogs/demo
-Rendering nlohmann::json serialization code
-generating ./node_nljs.hpp:
-generating ./comp_nljs.hpp:
-generating ./head_nljs.hpp:
-Compiling Avro schema files
-Generating Avro code
-Validating configuration
-null
-null above means okay!
-Compiling configuration to cogs stream file
 #+end_example
 
 Below we will look more at what this script does.
@@ -126,22 +118,11 @@ The demo provides a ready made ~cogs~ configuration stream file:
 
 #+RESULTS:
 #+begin_example
- making stream for file://demo/demo-config.json
- main:		lookup: [demoSource]: "mycomp_source1"
- Source:	constructing
- main:		configure: [demoSource]: "mycomp_source1"
- Source:	configured to send 42 things
- main:		lookup: [demoNode]: "mynode_inst1"
- Node:		constructing
- main:		configure: [demoNode]: "mynode_inst1"
- Node:		mynode1
- Node:			making port: src
- Node:				link: bind'ing to: 
- Node:		lookin up component: mycomp_source1
- Node:			set port: src
- Source:	given port src
- main:		configuration stream done
 #+end_example
+
+
+
+
 
 The ~sed~ is simply to remove ERS output augmentation more appropriate
 to log files.  The output shows the configuration driving the
@@ -359,7 +340,7 @@ of a JSON file holding an array.  This file is created from Jsonnet by
 #+RESULTS:
 #+begin_src shell
 echo "Compiling configuration to cogs stream file"
-moo compile -D model demo-config.jsonnet > demo-config.json
+moo -D model compile demo-config.jsonnet > demo-config.json
 #+end_src
 
 The [[file:demo/demo-config.json][demo-config.json]] file is what was used above to run the demo.  It
@@ -498,16 +479,14 @@ Looking at the first few lines:
 #+begin_src jsonnet
 local re = import "re.jsonnet";
 function(schema) {
-    local ident = schema.string(pattern=re.ident_only),
+    local ident = schema.string("Ident", pattern=re.ident_only),
 #+end_src
 
-Here, the Jsonnet file [[file:demo/re.jsonnet][re.jsonnet]] is imported.  It contains a set of
-regular expressions that are to be used to constrain the validity of
-strings in the schema.  For example it begins with:
+Here, the Jsonnet file [[file:demo/re.jsonnet][re.jsonnet]] is imported and is provided by ~moo~.
+It contains a set of regular expressions that are to be used to
+constrain the validity of strings in the schema.  For example it
+begins with:
 
-#+call: grep("{", "demo/re.jsonnet", 3) :wrap "src jsonnet"
-
-#+RESULTS:
 #+begin_src jsonnet
 {
     // Basic identifier (restrict to legal C variable nam)
@@ -525,24 +504,30 @@ referred to simply by the name ~ident~ later.
 
 Next we find an example of an ~enum~ and a ~record~ which describe a "link":
 
-#+call: grep("local ltype", "demo/node-schema.jsonnet", 6) :wrap "src jsonnet"
+#+call: grep("local address", "demo/node-schema.jsonnet", 9) :wrap "src jsonnet"
 
 #+RESULTS:
 #+begin_src jsonnet
+    local address = schema.string("Address", pattern=re.uri),
+
     local ltype = schema.enum("LinkType", ["bind","connect"], default="bind",
                          doc="How a port links to an address"),
     local link = schema.record("Link", fields= [
-        schema.field("linktype", "LinkType",
+        schema.field("linktype", ltype,
                 doc="The socket may bind or connect the link"),
         schema.field("address", address, 
                 doc="The address to link to")
+    ], doc="Describes how a single link is to be made"),
 #+end_src
 
-A "link" is intended to generalize the concept of a socket ~bind()~ or a
-~connect()~ with an "address".  In a real system like ZIO, an address is
-in the form of a URL like ~tcp://127.0.0.1:5678~ for direct ZeroMQ
-addressing or ~zyre://nodename/portname~ for automated network peer
-discovery.
+A "link" is intended to generalize the concept of relationship of a
+socket and an address.  The ~LinkType~ represents one of the two allowed
+link mechanism (a ~bind()~ or a ~connect()~).  Note how the Jsonnet
+representation of this type is used to further define the ~Link~ along
+with the representation of a string type ~Address~.  In a real system
+like ZIO, an address is in the form of a URL like ~tcp://127.0.0.1:5678~
+for direct ZeroMQ addressing or ~zyre://nodename/portname~ for automated
+network peer discovery.
 
 Next we come to a "port":
 
@@ -553,7 +538,7 @@ Next we come to a "port":
     local port = schema.record("Port", fields=[
         schema.field("ident", ident,
                 doc="Identify the port uniquely in th enode"),
-        schema.field("links", schema.sequence("Link"), 
+        schema.field("links", linklist, 
                 doc="Describe how this port should link to addresses"),
     ], doc="A port configuration object",),
 #+end_src
@@ -576,9 +561,9 @@ a node needs to know in order to interact with a component:
                 doc="Identify copmponent instance uniquely in the node"),
         schema.field("type_name", ident, 
                 doc="Identify the component implementation"),
-        schema.field("portlist", schema.sequence(ident), 
+        schema.field("portlist", portlist,
                 doc="Identity of ports required by component"),
-        schema.field("config", schema.string(), 
+        schema.field("config", extra_config,
                 doc="Per instance configuration string used by node")
     ], doc="An object used by the node to partly configure a component"),
 #+end_src
@@ -602,9 +587,9 @@ Penultimately, we get to the top level of the "node" schema:
     local node = schema.record("Node", fields=[
         schema.field("ident", ident,
                 doc="Idenfity the node instance"),
-        schema.field("portdefs", schema.sequence("Port"), 
+        schema.field("portdefs", portdefs,
                 doc="Define ports on the node to be used by components"),
-        schema.field("compdefs", schema.sequence("Comp"),
+        schema.field("compdefs", compdefs,
                 doc="Define components the node should instantiate and configure"),
     ], doc="A node configures ports and components"),
 #+end_src
@@ -618,8 +603,9 @@ And, finally, the "return" value collects all the types:
 
 #+RESULTS:
 #+begin_src jsonnet
-    types: [ ltype, link, port, comp, node ],
-}
+    types: [ ident, address, ltype, link, linklist,
+             port, portlist, portdefs,
+             extra_config, comp, compdefs, node ],
 #+end_src
 
 ** Configuration objects
@@ -632,9 +618,10 @@ objects in JSON Schema vocabulary.
 The configuration stream can first be validated with ~moo~:
 
 #+begin_example
-moo validate --sequence \
-  -S schema -s demo/demo-config.jsonnet \
-  -D model demo/demo-config.jsonnet
+moo -S schema -D model \
+   validate --sequence \
+   -s demo/demo-config.jsonnet \
+      demo/demo-config.jsonnet
 #+end_example
 
 This tells ~moo~ to assume both the named model and schema are actually
@@ -646,6 +633,7 @@ When valid the model may be compiled into a form that can be consumed
 as a ~cogs~ stream:
 
 #+begin_example
-moo compile -D model demo/demo-config.jsonnet > demo/demo-config.json
+moo -D model  compile demo/demo-config.jsonnet > demo/demo-config.json
 #+end_example
 
+One may now go back to the section above [[Run]] where we ran this configuration through the ~cogs-demo~ application.

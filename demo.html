@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-06-27 Sat 17:27 -->
+<!-- 2020-07-05 Sun 16:08 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>cogs ⚙ demo</title>
@@ -289,7 +289,7 @@ for the JavaScript code in this tag.
 <li><a href="#schema-layers">Layers</a></li>
 <li><a href="#base-schema">Base schema</a></li>
 <li><a href="#node-schema">Node schema</a></li>
-<li><a href="#org4ba618a">Configuration objects</a></li>
+<li><a href="#orgff44f2a">Configuration objects</a></li>
 </ul>
 </li>
 </ul>
@@ -338,7 +338,7 @@ In addition to what <code>cogs</code> requires, the demo requires:
 </p>
 
 <ul class="org-ul">
-<li>Avro CPO library and headers</li>
+<li>Avro CPP library and headers</li>
 </ul>
 
 <p>
@@ -362,7 +362,10 @@ With prerequisites satisfied, the demo builds with the <code>cogs</code> library
 </p>
 
 <pre class="example">
-waf configure --prefix=$(pwd)/install --with-nljs=$HOME/opt/nljs --with-ers=$HOME/opt/ers --with-avro=$HOME/opt/avro
+waf configure --prefix=$(pwd)/install \
+    --with-nljs=$HOME/opt/nljs \
+    --with-ers=$HOME/opt/ers \
+    --with-avro=$HOME/opt/avro
 waf install
 </pre>
 
@@ -376,7 +379,7 @@ You should be rewarded with:
 </div>
 
 <pre class="example">
-2020-Jun-27 17:27:29,698 INFO [main(...) at unknown/demo/cogs-demo.cpp:12] usage: ./install/bin/cogs-demo &lt;uri&gt;
+2020-Jul-05 16:08:50,412 INFO [main(...) at unknown/demo/cogs-demo.cpp:12] usage: ./install/bin/cogs-demo &lt;uri&gt;
 </pre>
 </div>
 </div>
@@ -396,7 +399,22 @@ prerequisites are satisfied, it may be regenerated:
 </div>
 
 <pre class="example">
-
+codegen in /home/bv/dev/cogs/demo
+Rendering nlohmann::json serialization code
+generating ./node_nljs.hpp:
+generating ./comp_nljs.hpp:
+generating ./head_nljs.hpp:
+Compiling Avro schema files
+Generating Avro code
+Validating configuration
+[
+    null,
+    null,
+    null,
+    null
+]
+null above means okay!
+Compiling configuration to cogs stream file
 </pre>
 
 <p>
@@ -429,12 +447,16 @@ Node:		constructing
 main:		configure: [demoNode]: "mynode_inst1"
 Node:		mynode1
 Node:			making port: src
-Node:				link: bind'ing to: 
+Node:				link: bind'ing to: tcp://127.0.0.1:5678
 Node:		lookin up component: mycomp_source1
 Node:			set port: src
 Source:	given port src
 main:		configuration stream done
 </pre>
+
+
+
+
 
 <p>
 The <code>sed</code> is simply to remove ERS output augmentation more appropriate
@@ -635,16 +657,19 @@ The content of Jsonnet file <a href="demo/demo-avro.jsonnet">demo-avro.jsonnet</
 
 <div class="org-src-container">
 <pre class="src src-jsonnet"><span style="color: #73d216;">// compile with -m</span>
+
+<span style="color: #73d216;">// avro domain schema</span>
 <span style="color: #b4fa70;">local</span> moo = <span style="color: #b4fa70;">import</span> <span style="color: #e9b96e;">"moo.jsonnet"</span>;
-<span style="color: #b4fa70;">local</span> moc = <span style="color: #b4fa70;">import</span> <span style="color: #e9b96e;">"moc.jsonnet"</span>;
+
+<span style="color: #73d216;">// application level schema</span>
 <span style="color: #b4fa70;">local</span> node = <span style="color: #b4fa70;">import</span> <span style="color: #e9b96e;">"node-schema.jsonnet"</span>;
 <span style="color: #b4fa70;">local</span> comp = <span style="color: #b4fa70;">import</span> <span style="color: #e9b96e;">"comp-schema.jsonnet"</span>;
 <span style="color: #b4fa70;">local</span> head = <span style="color: #b4fa70;">import</span> <span style="color: #e9b96e;">"head-schema.jsonnet"</span>;
 
 {
-    <span style="color: #e9b96e;">"node_avro.json"</span>: node(moc.avro).types,
-    <span style="color: #e9b96e;">"comp_avro.json"</span>: comp(moc.avro).types,
-    <span style="color: #e9b96e;">"head_avro.json"</span>: head(moc.avro).types,
+    <span style="color: #e9b96e;">"node_avro.json"</span>: moo.schema.avro.build(node),
+    <span style="color: #e9b96e;">"comp_avro.json"</span>: moo.schema.avro.build(comp),
+    <span style="color: #e9b96e;">"head_avro.json"</span>: moo.schema.avro.build(head),
 }
 </pre>
 </div>
@@ -702,14 +727,14 @@ The <a href="demo/demo-render.jsonnet">demo-render.jsonnet</a> file holds:
 
 <div class="org-src-container">
 <pre class="src src-jsonnet"><span style="color: #b4fa70;">local</span> moo = <span style="color: #b4fa70;">import</span> <span style="color: #e9b96e;">"moo.jsonnet"</span>;
-<span style="color: #b4fa70;">local</span> moc = <span style="color: #b4fa70;">import</span> <span style="color: #e9b96e;">"moc.jsonnet"</span>;
 <span style="color: #b4fa70;">local</span> node = <span style="color: #b4fa70;">import</span> <span style="color: #e9b96e;">"node-schema.jsonnet"</span>;
 <span style="color: #b4fa70;">local</span> comp = <span style="color: #b4fa70;">import</span> <span style="color: #e9b96e;">"comp-schema.jsonnet"</span>;
 <span style="color: #b4fa70;">local</span> head = <span style="color: #b4fa70;">import</span> <span style="color: #e9b96e;">"head-schema.jsonnet"</span>;
 
 <span style="color: #b4fa70;">local</span> render_nljs = <span style="color: #b4fa70;">function</span>(name, schema) moo.render(
     model= {
-        types: schema(moc.avro).types,
+        <span style="color: #73d216;">//types: schema(moo.schema.avro).types,</span>
+        types: moo.schema.avro.build(schema),
         namespace: <span style="color: #e9b96e;">"democfg"</span>,
         name:name,
     },
@@ -748,7 +773,7 @@ of a JSON file holding an array.  This file is created from Jsonnet by
 
 <div class="org-src-container">
 <pre class="src src-shell"><span style="color: #e090d7;">echo</span> <span style="color: #e9b96e;">"Compiling configuration to cogs stream file"</span>
-moo compile -D model demo-config.jsonnet &gt; demo-config.json
+moo -D model compile demo-config.jsonnet &gt; demo-config.json
 </pre>
 </div>
 
@@ -787,7 +812,7 @@ is not long and so is included here:
                 <span style="color: #b4fa70;">"ident"</span>: <span style="color: #e9b96e;">"src"</span>,
                 <span style="color: #b4fa70;">"links"</span>: [
                     {
-                        <span style="color: #b4fa70;">"address"</span>: <span style="color: #e9b96e;">""</span>,
+                        <span style="color: #b4fa70;">"address"</span>: <span style="color: #e9b96e;">"tcp://127.0.0.1:5678"</span>,
                         <span style="color: #b4fa70;">"linktype"</span>: <span style="color: #e9b96e;">"bind"</span>
                     }
                 ]
@@ -955,16 +980,15 @@ Looking at the first few lines:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-jsonnet"><span style="color: #b4fa70;">local</span> re = <span style="color: #b4fa70;">import</span> <span style="color: #e9b96e;">"re.jsonnet"</span>;
-<span style="color: #b4fa70;">function</span>(schema) {
-    <span style="color: #b4fa70;">local</span> ident = schema.string(pattern=re.ident_only),
+<pre class="src src-jsonnet">
 </pre>
 </div>
 
 <p>
-Here, the Jsonnet file <a href="demo/re.jsonnet">re.jsonnet</a> is imported.  It contains a set of
-regular expressions that are to be used to constrain the validity of
-strings in the schema.  For example it begins with:
+Here, the Jsonnet file <a href="demo/re.jsonnet">re.jsonnet</a> is imported and is provided by <code>moo</code>.
+It contains a set of regular expressions that are to be used to
+constrain the validity of strings in the schema.  For example it
+begins with:
 </p>
 
 <div class="org-src-container">
@@ -992,22 +1016,28 @@ Next we find an example of an <code>enum</code> and a <code>record</code> which 
 </p>
 
 <div class="org-src-container">
-<pre class="src src-jsonnet"><span style="color: #b4fa70;">local</span> ltype = schema.enum(<span style="color: #e9b96e;">"LinkType"</span>, [<span style="color: #e9b96e;">"bind"</span>,<span style="color: #e9b96e;">"connect"</span>], default=<span style="color: #e9b96e;">"bind"</span>,
+<pre class="src src-jsonnet"><span style="color: #b4fa70;">local</span> address = schema.string(<span style="color: #e9b96e;">"Address"</span>, pattern=moo.schema.re.uri),
+
+<span style="color: #b4fa70;">local</span> ltype = schema.enum(<span style="color: #e9b96e;">"LinkType"</span>, [<span style="color: #e9b96e;">"bind"</span>,<span style="color: #e9b96e;">"connect"</span>], default=<span style="color: #e9b96e;">"bind"</span>,
                      doc=<span style="color: #e9b96e;">"How a port links to an address"</span>),
 <span style="color: #b4fa70;">local</span> link = schema.record(<span style="color: #e9b96e;">"Link"</span>, fields= [
-    schema.field(<span style="color: #e9b96e;">"linktype"</span>, <span style="color: #e9b96e;">"LinkType"</span>,
+    schema.field(<span style="color: #e9b96e;">"linktype"</span>, ltype,
             doc=<span style="color: #e9b96e;">"The socket may bind or connect the link"</span>),
     schema.field(<span style="color: #e9b96e;">"address"</span>, address, 
             doc=<span style="color: #e9b96e;">"The address to link to"</span>)
+], doc=<span style="color: #e9b96e;">"Describes how a single link is to be made"</span>),
 </pre>
 </div>
 
 <p>
-A "link" is intended to generalize the concept of a socket <code>bind()</code> or a
-<code>connect()</code> with an "address".  In a real system like ZIO, an address is
-in the form of a URL like <code>tcp://127.0.0.1:5678</code> for direct ZeroMQ
-addressing or <code>zyre://nodename/portname</code> for automated network peer
-discovery.
+A "link" is intended to generalize the concept of relationship of a
+socket and an address.  The <code>LinkType</code> represents one of the two allowed
+link mechanism (a <code>bind()</code> or a <code>connect()</code>).  Note how the Jsonnet
+representation of this type is used to further define the <code>Link</code> along
+with the representation of a string type <code>Address</code>.  In a real system
+like ZIO, an address is in the form of a URL like <code>tcp://127.0.0.1:5678</code>
+for direct ZeroMQ addressing or <code>zyre://nodename/portname</code> for automated
+network peer discovery.
 </p>
 
 <p>
@@ -1018,7 +1048,7 @@ Next we come to a "port":
 <pre class="src src-jsonnet"><span style="color: #b4fa70;">local</span> port = schema.record(<span style="color: #e9b96e;">"Port"</span>, fields=[
     schema.field(<span style="color: #e9b96e;">"ident"</span>, ident,
             doc=<span style="color: #e9b96e;">"Identify the port uniquely in th enode"</span>),
-    schema.field(<span style="color: #e9b96e;">"links"</span>, schema.sequence(<span style="color: #e9b96e;">"Link"</span>), 
+    schema.field(<span style="color: #e9b96e;">"links"</span>, linklist, 
             doc=<span style="color: #e9b96e;">"Describe how this port should link to addresses"</span>),
 ], doc=<span style="color: #e9b96e;">"A port configuration object"</span>,),
 </pre>
@@ -1043,9 +1073,9 @@ a node needs to know in order to interact with a component:
             doc=<span style="color: #e9b96e;">"Identify copmponent instance uniquely in the node"</span>),
     schema.field(<span style="color: #e9b96e;">"type_name"</span>, ident, 
             doc=<span style="color: #e9b96e;">"Identify the component implementation"</span>),
-    schema.field(<span style="color: #e9b96e;">"portlist"</span>, schema.sequence(ident), 
+    schema.field(<span style="color: #e9b96e;">"portlist"</span>, portlist,
             doc=<span style="color: #e9b96e;">"Identity of ports required by component"</span>),
-    schema.field(<span style="color: #e9b96e;">"config"</span>, schema.string(), 
+    schema.field(<span style="color: #e9b96e;">"config"</span>, extra_config,
             doc=<span style="color: #e9b96e;">"Per instance configuration string used by node"</span>)
 ], doc=<span style="color: #e9b96e;">"An object used by the node to partly configure a component"</span>),
 </pre>
@@ -1071,9 +1101,9 @@ Penultimately, we get to the top level of the "node" schema:
 <pre class="src src-jsonnet"><span style="color: #b4fa70;">local</span> node = schema.record(<span style="color: #e9b96e;">"Node"</span>, fields=[
     schema.field(<span style="color: #e9b96e;">"ident"</span>, ident,
             doc=<span style="color: #e9b96e;">"Idenfity the node instance"</span>),
-    schema.field(<span style="color: #e9b96e;">"portdefs"</span>, schema.sequence(<span style="color: #e9b96e;">"Port"</span>), 
+    schema.field(<span style="color: #e9b96e;">"portdefs"</span>, portdefs,
             doc=<span style="color: #e9b96e;">"Define ports on the node to be used by components"</span>),
-    schema.field(<span style="color: #e9b96e;">"compdefs"</span>, schema.sequence(<span style="color: #e9b96e;">"Comp"</span>),
+    schema.field(<span style="color: #e9b96e;">"compdefs"</span>, compdefs,
             doc=<span style="color: #e9b96e;">"Define components the node should instantiate and configure"</span>),
 ], doc=<span style="color: #e9b96e;">"A node configures ports and components"</span>),
 </pre>
@@ -1089,16 +1119,17 @@ And, finally, the "return" value collects all the types:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-jsonnet">    types: [ ltype, link, port, comp, node ],
-}
+<pre class="src src-jsonnet">types: [ ident, address, ltype, link, linklist,
+         port, portlist, portdefs,
+         extra_config, comp, compdefs, node ],
 </pre>
 </div>
 </div>
 </div>
 
-<div id="outline-container-org4ba618a" class="outline-3">
-<h3 id="org4ba618a">Configuration objects</h3>
-<div class="outline-text-3" id="text-org4ba618a">
+<div id="outline-container-orgff44f2a" class="outline-3">
+<h3 id="orgff44f2a">Configuration objects</h3>
+<div class="outline-text-3" id="text-orgff44f2a">
 <p>
 The demo generates a configuration stream (JSON array) with
 <a href="demo/demo-config.jsonnet">demo-config.jsonnet</a>.  It defines two top level attributes: <code>model</code> which
@@ -1111,9 +1142,10 @@ The configuration stream can first be validated with <code>moo</code>:
 </p>
 
 <pre class="example">
-moo validate --sequence \
-  -S schema -s demo/demo-config.jsonnet \
-  -D model demo/demo-config.jsonnet
+moo -S schema -D model \
+   validate --sequence \
+   -s demo/demo-config.jsonnet \
+      demo/demo-config.jsonnet
 </pre>
 
 <p>
@@ -1129,15 +1161,19 @@ as a <code>cogs</code> stream:
 </p>
 
 <pre class="example">
-moo compile -D model demo/demo-config.jsonnet &gt; demo/demo-config.json
+moo -D model  compile demo/demo-config.jsonnet &gt; demo/demo-config.json
 </pre>
+
+<p>
+One may now go back to the section above <a href="#run">Run</a> where we ran this configuration through the <code>cogs-demo</code> application.
+</p>
 </div>
 </div>
 </div>
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Brett Viren</p>
-<p class="date">Created: 2020-06-27 Sat 17:27</p>
+<p class="date">Created: 2020-07-05 Sun 16:08</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

@@ -16,10 +16,10 @@ for n in *_avro.json; do
 done     
 
 echo "Validating configuration"
-moo validate --sequence -S schema -s demo-config.jsonnet -D model demo-config.jsonnet
+moo -S schema -D model validate --sequence -s demo-config.jsonnet demo-config.jsonnet
 echo
 echo "null above means okay!"
 
 echo "Compiling configuration to cogs stream file"
-moo compile -D model demo-config.jsonnet > demo-config.json
+moo -D model compile demo-config.jsonnet > demo-config.json
 

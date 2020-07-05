@@ -1,6 +1,9 @@
 // This file creates a demo cogs configuration stream file which is a
 // JSON array that ping-pongs between a header and a payload
 
+local moo = import "moo.jsonnet";
+
+
 /// First, define some functions to create our configuration objects
 /// so they will be valid-by-construction.  Unfortunately, I see no
 /// way to generate these from schema.  But, once written and debugged
@@ -29,22 +32,10 @@ local node_schema = import "node-schema.jsonnet";
 local comp_schema = import "comp-schema.jsonnet";
 local head_schema = import "head-schema.jsonnet";
 
-local jscm = import "json-schema.jsonnet";
-
-local local_jscm = import "json-schema.jsonnet";
-
-local compound(types, top=null) = {
-    ret : {
-        definitions: {[t._name]:t for t in types}
-    } + if std.type(top) == "null"
-    then types[std.length(types)-1]
-    else top,
-}.ret;
-
 local schema = {
-    head: compound(head_schema(jscm).types),
-    comp: compound(comp_schema(jscm).types),
-    node: compound(node_schema(jscm).types),
+    head: moo.schema.json.build(head_schema),
+    comp: moo.schema.json.build(comp_schema),
+    node: moo.schema.json.build(node_schema),
 };
 
 

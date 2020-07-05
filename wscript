@@ -70,11 +70,11 @@ def configure(cfg):
               use='BOOST', uselib_store='BOOST', mandatory=True)
 
     cfg.write_config_header('config.hpp')
-    #print (cfg.env)
+
     if 'HAVE_AVRO' in cfg.env:
-        print("will build demo")
+        print("Avro found, will build demo")
     else:
-        print("will NOT build demo")
+        print("No Avro found, will NOT build demo")
         
 
 def build(bld):

@@ -1,12 +1,12 @@
 local moo = import "moo.jsonnet";
-local moc = import "moc.jsonnet";
 local node = import "node-schema.jsonnet";
 local comp = import "comp-schema.jsonnet";
 local head = import "head-schema.jsonnet";
 
 local render_nljs = function(name, schema) moo.render(
     model= {
-        types: schema(moc.avro).types,
+        //types: schema(moo.schema.avro).types,
+        types: moo.schema.avro.build(schema),
         namespace: "democfg",
         name:name,
     },
