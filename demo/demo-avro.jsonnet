@@ -1,12 +1,15 @@
 // compile with -m
-local moo = import "moo.jsonnet";
-local moc = import "moc.jsonnet";
+
+// avro domain schema
+local avro = import "avro-schema.jsonnet";
+
+// application level schema
 local node = import "node-schema.jsonnet";
 local comp = import "comp-schema.jsonnet";
 local head = import "head-schema.jsonnet";
 
 {
-    "node_avro.json": node(moc.avro).types,
-    "comp_avro.json": comp(moc.avro).types,
-    "head_avro.json": head(moc.avro).types,
+    "node_avro.json": node(avro).types,
+    "comp_avro.json": comp(avro).types,
+    "head_avro.json": head(avro).types,
 }
