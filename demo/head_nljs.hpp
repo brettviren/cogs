@@ -3,7 +3,7 @@
 
 
 #include "nlohmann/json.hpp"
-#include "head_avro.hpp"
+#include "head_structs.hpp"
 
 namespace democfg {
 

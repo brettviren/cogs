@@ -8,8 +8,8 @@ source /cvmfs/dune.opensciencegrid.org/dunedaq/DUNE/products/setup
 setup ers v0_26_00 -q e19:prof
 setup boost v1_70_0 -q e19:prof
 
-# For cogs demo we need cmake to build Avro CPP:
-setup cmake v3_17_2
+# # For cogs demo we need cmake to build Avro CPP:
+# setup cmake v3_17_2
 
 # For moo we need a supported Python version, take from larsoft
 PRODUCTS=$PRODUCTS:/cvmfs/larsoft.opensciencegrid.org/products

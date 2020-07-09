@@ -9,10 +9,6 @@ The dependencies for cogs are few.  cogs as a library needs:
 
 To build the cogs demo, additionally:
 
-- Avro CPP
-
-To rerun the demo's codegen, additionally:
-
 - moo
 
 
@@ -48,36 +44,6 @@ Use like:
   $ source /path/to/wherever/build-sl7-setup.sh
 #+end_example
 
-* Avro CPP
-
-Avro CPP is only needed to build and run the ~cogs~ demo.  It is *not* needed for the ~cogs~ library.
-
-#+begin_example
-  $ wget http://apache.mirrors.hoobly.com/avro/avro-1.9.2/cpp/avro-cpp-1.9.2.tar.gz
-  $ tar -xf avro-cpp-1.9.2.tar.gz
-  $ mkdir avro-cpp-1.9.2/build
-  $ cd avro-cpp-1.9.2/build
-  $ cmake .. -DCMAKE_INSTALL_PREFIX=$TOP -DBoost_NO_BOOST_CMAKE=ON
-  $ make -j$(nproc) install
-#+end_example
-
-There's some garbage going on with CMake and Boost (there always some
-garbage with CMake) which is why the nonsensical ~-DBoost_NO_BOOST_CMAKE=ON~ option is required here.
-
-You should now have Avro CPP codegen compiler:
-
-#+begin_example
-$ avrogencpp 
-Allowed options:
-  -h [ --help ]                       produce help message
-  -p [ --include-prefix ] arg (=avro) prefix for include headers, - for none, 
-                                      default: avro
-  -U [ --no-union-typedef ]           do not generate typedefs for unions in 
-                                      records
-  -n [ --namespace ] arg              set namespace for generated code
-  -i [ --input ] arg                  input file
-  -o [ --output ] arg                 output file to generate
-#+end_example
 
 * moo
 
@@ -150,84 +116,15 @@ Now cogs:
   $ waf configure --prefix=$TOP \
      --with-ers=$ERS_FQ_DIR \
      --with-boost=$BOOST_FQ_DIR \
-     --with-nljs=$TOP \
-     --with-avro=$TOP
+     --with-nljs=$TOP 
   # waf install
 #+end_example
 
-If Avro is not found, only ~cogs~ library and not the demo will be built and installed.  If the demo is built then it can be checked with:
+The demo main program can be check via:
 
 #+begin_example
   $ cogs-demo
   2020-Jun-27 19:54:47,027 INFO [main(...) at unknown/demo/cogs-demo.cpp:12] usage: cogs-demo <uri>
 #+end_example
 
-* Tree
-
-For reference, the resulting installation tree looks like:
-
-#+begin_example
-$ tree bin include lib lib64
-bin
-├── avrogencpp
-├── cogs-demo
-└── waf
-include
-├── avro
-│   ├── AvroParse.hh
-│   ├── AvroSerialize.hh
-│   ├── AvroTraits.hh
-│   ├── buffer
-│   │   ├── Buffer.hh
-│   │   ├── BufferPrint.hh
-│   │   ├── BufferReader.hh
-│   │   ├── BufferStreambuf.hh
-│   │   ├── BufferStream.hh
-│   │   └── detail
-│   │       ├── BufferDetail.hh
-│   │       └── BufferDetailIterator.hh
-│   ├── Compiler.hh
-│   ├── Config.hh
-│   ├── DataFile.hh
-│   ├── Decoder.hh
-│   ├── Encoder.hh
-│   ├── Exception.hh
-│   ├── GenericDatum.hh
-│   ├── Generic.hh
-│   ├── Layout.hh
-│   ├── LogicalType.hh
-│   ├── NodeConcepts.hh
-│   ├── Node.hh
-│   ├── NodeImpl.hh
-│   ├── Parser.hh
-│   ├── Reader.hh
-│   ├── Resolver.hh
-│   ├── ResolverSchema.hh
-│   ├── ResolvingReader.hh
-│   ├── Schema.hh
-│   ├── SchemaResolution.hh
-│   ├── Serializer.hh
-│   ├── Specific.hh
-│   ├── Stream.hh
-│   ├── Types.hh
-│   ├── Validator.hh
-│   ├── ValidSchema.hh
-│   ├── Writer.hh
-│   └── Zigzag.hh
-├── cogs
-│   ├── configurable.hpp
-│   ├── issues.hpp
-│   ├── object.hpp
-│   └── stream.hpp
-└── nlohmann
-    └── json.hpp
-lib
-├── libavrocpp_s.a
-├── libavrocpp.so -> libavrocpp.so.1.9.2.0
-└── libavrocpp.so.1.9.2.0
-lib64
-└── libcogs.so
-
-5 directories, 50 files
-#+end_example
 

@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-07-05 Sun 16:08 -->
+<!-- 2020-07-09 Thu 14:10 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>cogs ⚙ demo</title>
@@ -279,8 +279,7 @@ for the JavaScript code in this tag.
 </li>
 <li><a href="#codegen">Codegen</a>
 <ul>
-<li><a href="#gen-avro">C++ configuration types</a></li>
-<li><a href="#gen-nljs">Serialization code</a></li>
+<li><a href="#gen-struct">Generating C++</a></li>
 <li><a href="#gen-cfg">Configuration stream</a></li>
 </ul>
 </li>
@@ -289,7 +288,7 @@ for the JavaScript code in this tag.
 <li><a href="#schema-layers">Layers</a></li>
 <li><a href="#base-schema">Base schema</a></li>
 <li><a href="#node-schema">Node schema</a></li>
-<li><a href="#orgff44f2a">Configuration objects</a></li>
+<li><a href="#orgc22379b">Configuration objects</a></li>
 </ul>
 </li>
 </ul>
@@ -334,22 +333,11 @@ This section describes issues about building the demo code.
 <h3 id="prereq">Prerequisites</h3>
 <div class="outline-text-3" id="text-prereq">
 <p>
-In addition to what <code>cogs</code> requires, the demo requires:
+In addition to what <code>cogs</code> library requires, the demo requires:
 </p>
 
 <ul class="org-ul">
-<li>Avro CPP library and headers</li>
-</ul>
-
-<p>
-The generated demo code is committed to the repository.  To regenerate
-it requires additionally:
-</p>
-
-<ul class="org-ul">
-<li><code>avrogencpp</code> from Avro CPP package</li>
-
-<li><code>moo</code> Python program from <a href="https://github.com/brettviren/moo">moo</a>.</li>
+<li><code>moo</code> Python program from <a href="https://github.com/brettviren/moo">moo</a> (only to re-codegen)</li>
 </ul>
 </div>
 </div>
@@ -364,8 +352,7 @@ With prerequisites satisfied, the demo builds with the <code>cogs</code> library
 <pre class="example">
 waf configure --prefix=$(pwd)/install \
     --with-nljs=$HOME/opt/nljs \
-    --with-ers=$HOME/opt/ers \
-    --with-avro=$HOME/opt/avro
+    --with-ers=$HOME/opt/ers 
 waf install
 </pre>
 
@@ -379,7 +366,7 @@ You should be rewarded with:
 </div>
 
 <pre class="example">
-2020-Jul-05 16:08:50,412 INFO [main(...) at unknown/demo/cogs-demo.cpp:12] usage: ./install/bin/cogs-demo &lt;uri&gt;
+2020-Jul-09 14:10:51,819 INFO [main(...) at unknown/demo/cogs-demo.cpp:12] usage: ./install/bin/cogs-demo &lt;uri&gt;
 </pre>
 </div>
 </div>
@@ -400,12 +387,13 @@ prerequisites are satisfied, it may be regenerated:
 
 <pre class="example">
 codegen in /home/bv/dev/cogs/demo
-Rendering nlohmann::json serialization code
-generating ./node_nljs.hpp:
+Codegen for structs and serialization
 generating ./comp_nljs.hpp:
+generating ./comp_structs.hpp:
 generating ./head_nljs.hpp:
-Compiling Avro schema files
-Generating Avro code
+generating ./head_structs.hpp:
+generating ./node_nljs.hpp:
+generating ./node_structs.hpp:
 Validating configuration
 [
     null,
@@ -606,161 +594,63 @@ distributed network discovery.
 <h2 id="codegen">Codegen</h2>
 <div class="outline-text-2" id="text-codegen">
 <p>
-This section provides a tour of the types of code generation commands
-used to produce the bulk of the demo's code and configuration.  The
-tour focuses on the <a href="demo/generate.sh">generate.sh</a> script.  This script runs its commands
-from the <a href="demo/">demo/</a> directory and that should be taken into consideration
-when reading excerpts of the script which are shown below.
+This section provides a tour of code generation part of the demo.  The
+tour focuses on the short <a href="demo/generate.sh">generate.sh</a> script.  This script runs its
+commands from the <a href="demo/">demo/</a> directory and that should be taken into
+consideration when reading excerpts of the script which are shown
+below.
 </p>
 </div>
 
-<div id="outline-container-gen-avro" class="outline-3">
-<h3 id="gen-avro">C++ configuration types</h3>
-<div class="outline-text-3" id="text-gen-avro">
+<div id="outline-container-gen-struct" class="outline-3">
+<h3 id="gen-struct">Generating C++</h3>
+<div class="outline-text-3" id="text-gen-struct">
 <p>
 User code should not be burdened with validating and interpreting a
-configuration byte stream or even a dynamic C++ object like
+configuration byte stream or even interpreting dynamic C++ object like
 <code>nlohman::json</code>.  Instead, with <code>cogs</code> the user code receives a fully
 typed C++ <code>struct</code>, thus guaranteeing at least valid object structure.
 </p>
 
 <p>
-A configuration <code>struct</code> is produced in this demo using Avro CPP code
-generator.  It consumes Avro schema files which are produced from the
-demo's Jsonnet model in <a href="demo/demo-avro.jsonnet">demo-avro.jsonnet</a> using the <code>moo</code> tool:
-</p>
-
-<div class="org-src-container">
-<pre class="src src-shell"><span style="color: #e090d7;">echo</span> <span style="color: #e9b96e;">"Compiling Avro schema files"</span>
-moo compile -m . demo-avro.jsonnet
-<span style="color: #e090d7;">echo</span> <span style="color: #e9b96e;">"Generating Avro code"</span>
-<span style="color: #b4fa70;">for</span> n<span style="color: #b4fa70;"> in</span> *_avro.json; <span style="color: #b4fa70;">do</span>
-    avrogencpp -n democfg -i $<span style="color: #fcaf3e;">n</span> -o $(<span style="color: #fa8072;">basename</span> $<span style="color: #fcaf3e;">n</span> .json).hpp &amp;&amp; rm $<span style="color: #fcaf3e;">n</span>
-<span style="color: #b4fa70;">done</span>     
-</pre>
-</div>
-
-<p>
-one resulting file is at <a href="demo/node_avro.hpp">node<sub>avro.hpp</sub></a>.
-</p>
-
-<p>
-Note, we must give the C++ <code>namespace</code> on this command line.  It is also
-used elsewhere and is a case where some of the model "leaks" out of
-the otherwise "sole source of truth", the Jsonnet.  Work is needed to
-correct this.
-</p>
-
-<p>
-The content of Jsonnet file <a href="demo/demo-avro.jsonnet">demo-avro.jsonnet</a> is:
-</p>
-
-<div class="org-src-container">
-<pre class="src src-jsonnet"><span style="color: #73d216;">// compile with -m</span>
-
-<span style="color: #73d216;">// avro domain schema</span>
-<span style="color: #b4fa70;">local</span> moo = <span style="color: #b4fa70;">import</span> <span style="color: #e9b96e;">"moo.jsonnet"</span>;
-
-<span style="color: #73d216;">// application level schema</span>
-<span style="color: #b4fa70;">local</span> node = <span style="color: #b4fa70;">import</span> <span style="color: #e9b96e;">"node-schema.jsonnet"</span>;
-<span style="color: #b4fa70;">local</span> comp = <span style="color: #b4fa70;">import</span> <span style="color: #e9b96e;">"comp-schema.jsonnet"</span>;
-<span style="color: #b4fa70;">local</span> head = <span style="color: #b4fa70;">import</span> <span style="color: #e9b96e;">"head-schema.jsonnet"</span>;
-
-{
-    <span style="color: #e9b96e;">"node_avro.json"</span>: moo.schema.avro.build(node),
-    <span style="color: #e9b96e;">"comp_avro.json"</span>: moo.schema.avro.build(comp),
-    <span style="color: #e9b96e;">"head_avro.json"</span>: moo.schema.avro.build(head),
-}
-</pre>
-</div>
-
-<p>
-Compiling to Avro schema is particularly easy since that format is
-JSON.  The <code>moc.avro</code> "base schema" provided to the application schema
-functions, eg <code>node()</code> cause Avro JSON to be output.  Instead passing
-another base schema, eg, <code>moc.pbuf</code>, would produce a data structure
-compliant with Protobuf schema which may the be applied to a suitable
-template file in order to produce a Protobuf <code>.proto</code> file which can be
-compiled to Protobuf C++ classes.  We'll see just this pattern in the
-next section.
-</p>
-
-<p>
-For these and other reasons, future work may revisit the use of Avro
-for providing the configuration <code>struct</code> definition.  The demo does not
-actually use Avro serialization (next section) which would make a
-change easy.
-</p>
-</div>
-</div>
-
-<div id="outline-container-gen-nljs" class="outline-3">
-<h3 id="gen-nljs">Serialization code</h3>
-<div class="outline-text-3" id="text-gen-nljs">
-<p>
-While a <code>cogs</code> provides built-in support for JSON array or JSON stream
-files, <code>cogs</code> streams are ultimately some form of byte streams.  An
-intermediate representation of configuration information is provided
-in the form of a <code>cogs::object</code> which is simply a <code>nlohmann::json</code>.  This
-makes implementing the built-in JSON-based <code>cogs::Streams</code> rather
-trivial while also provides a general purpose intermediary
-representation which isolates low and high levels of <code>cogs</code>.  The
-<code>nlohmann::json</code> package is further exploited by generating <code>to_json()</code>
-and <code>from_json()</code> functions for every C++ type so that conversion
-between a <code>cogs::object</code> and its corresponding C++ <code>struct</code> (generated as
-above) is straight-forward.
-</p>
-
-<p>
-This C++ code is generated as:
-</p>
-
-<div class="org-src-container">
-<pre class="src src-shell"><span style="color: #e090d7;">echo</span> <span style="color: #e9b96e;">"Rendering nlohmann::json serialization code"</span>
-moo render-many demo-render.jsonnet
-</pre>
-</div>
-
-<p>
-The <a href="demo/demo-render.jsonnet">demo-render.jsonnet</a> file holds:
+The code for a <code>struct</code> and its serialization methods is generated from
+an application schema realized with the Avro domain schema and a few
+extra bits of information.  This information for the demo's "node",
+"comp" and "head" application schema is brought together in the short
+file <a href="demo/demo-codegen.jsonnet">demo-codegen.jsonnet</a> included here:
 </p>
 
 <div class="org-src-container">
 <pre class="src src-jsonnet"><span style="color: #b4fa70;">local</span> moo = <span style="color: #b4fa70;">import</span> <span style="color: #e9b96e;">"moo.jsonnet"</span>;
-<span style="color: #b4fa70;">local</span> node = <span style="color: #b4fa70;">import</span> <span style="color: #e9b96e;">"node-schema.jsonnet"</span>;
-<span style="color: #b4fa70;">local</span> comp = <span style="color: #b4fa70;">import</span> <span style="color: #e9b96e;">"comp-schema.jsonnet"</span>;
-<span style="color: #b4fa70;">local</span> head = <span style="color: #b4fa70;">import</span> <span style="color: #e9b96e;">"head-schema.jsonnet"</span>;
 
-<span style="color: #b4fa70;">local</span> render_nljs = <span style="color: #b4fa70;">function</span>(name, schema) moo.render(
-    model= {
-        <span style="color: #73d216;">//types: schema(moo.schema.avro).types,</span>
-        types: moo.schema.avro.build(schema),
-        namespace: <span style="color: #e9b96e;">"democfg"</span>,
-        name:name,
-    },
-    template = <span style="color: #e9b96e;">"avro_nljs.hpp.j2"</span>,
-    filename = name+<span style="color: #e9b96e;">"_nljs.hpp"</span>);
+<span style="color: #b4fa70;">local</span> s = {
+    node: <span style="color: #b4fa70;">import</span> <span style="color: #e9b96e;">"node-schema.jsonnet"</span>,
+    comp: <span style="color: #b4fa70;">import</span> <span style="color: #e9b96e;">"comp-schema.jsonnet"</span>,
+    head: <span style="color: #b4fa70;">import</span> <span style="color: #e9b96e;">"head-schema.jsonnet"</span>,
+};
 
-[
-    render_nljs(<span style="color: #e9b96e;">"node"</span>,node),
-    render_nljs(<span style="color: #e9b96e;">"comp"</span>,comp),
-    render_nljs(<span style="color: #e9b96e;">"head"</span>,head),
-]
+<span style="color: #b4fa70;">local</span> render_one = <span style="color: #b4fa70;">function</span>(cg) [
+    moo.render(cg, <span style="color: #e9b96e;">"avro_%s.hpp.j2"</span>%t, <span style="color: #e9b96e;">"%s_%s.hpp"</span>%[cg.name,t])
+    <span style="color: #b4fa70;">for</span> t <span style="color: #b4fa70;">in</span> [<span style="color: #e9b96e;">"nljs"</span>, <span style="color: #e9b96e;">"structs"</span>]];
+
+
+<span style="color: #b4fa70;">local</span> cg = moo.schema.avro.codegen;
+std.flattenArrays([render_one(cg(k, s[k], <span style="color: #e9b96e;">"democfg"</span>)) <span style="color: #b4fa70;">for</span> k <span style="color: #b4fa70;">in</span> std.objectFields(s)])
 </pre>
 </div>
 
 <p>
-It is somewhat similar to <code>demo-avro.jsonnet</code> shown above and even uses
-the same "base schema" as used to generate Avro schema.  However,
-instead of providing Avro schema files which must be post-processed by
-<code>avrogencpp</code>, it provides information that may be directly consumed and
-applied against templates by the <code>moo</code> tool in order to produce all C++
-code files in one go.  The generated NLJS C++ file for a "node" is at
-<a href="demo/node_nljs.hpp"><code>node_nljs.hpp</code></a>
+To produce the set of six header files (one for structs and one for
+their serialization for each application schema) one runs:
 </p>
-</div>
-</div>
 
+<div class="org-src-container">
+<pre class="src src-shell"><span style="color: #e090d7;">echo</span> <span style="color: #e9b96e;">"Codegen for structs and serialization"</span>
+moo render-many demo-codegen.jsonnet
+</pre>
+</div>
+</div>
+</div>
 
 <div id="outline-container-gen-cfg" class="outline-3">
 <h3 id="gen-cfg">Configuration stream</h3>
@@ -1127,9 +1017,9 @@ And, finally, the "return" value collects all the types:
 </div>
 </div>
 
-<div id="outline-container-orgff44f2a" class="outline-3">
-<h3 id="orgff44f2a">Configuration objects</h3>
-<div class="outline-text-3" id="text-orgff44f2a">
+<div id="outline-container-orgc22379b" class="outline-3">
+<h3 id="orgc22379b">Configuration objects</h3>
+<div class="outline-text-3" id="text-orgc22379b">
 <p>
 The demo generates a configuration stream (JSON array) with
 <a href="demo/demo-config.jsonnet">demo-config.jsonnet</a>.  It defines two top level attributes: <code>model</code> which
@@ -1173,7 +1063,7 @@ One may now go back to the section above <a href="#run">Run</a> where we ran thi
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Brett Viren</p>
-<p class="date">Created: 2020-07-05 Sun 16:08</p>
+<p class="date">Created: 2020-07-09 Thu 14:10</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

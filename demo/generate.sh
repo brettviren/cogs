@@ -5,15 +5,8 @@ wd=$(dirname $(realpath $BASH_SOURCE))
 cd $wd
 echo "codegen in $(pwd)"
 
-echo "Rendering nlohmann::json serialization code"
-moo render-many demo-render.jsonnet
-
-echo "Compiling Avro schema files"
-moo compile -m . demo-avro.jsonnet
-echo "Generating Avro code"
-for n in *_avro.json; do
-    avrogencpp -n democfg -i $n -o $(basename $n .json).hpp && rm $n
-done     
+echo "Codegen for structs and serialization"
+moo render-many demo-codegen.jsonnet
 
 echo "Validating configuration"
 moo -S schema -D model validate --sequence -s demo-config.jsonnet demo-config.jsonnet

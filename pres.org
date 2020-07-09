@@ -161,7 +161,7 @@ function(schema) {
 
 \cogs demo includes these concrete *domain schema*:
 
-- ~avro-schema.jsonnet~ for codegen with [[https://avro.apache.org/docs/current/api/cpp/html/index.html][Avro CPP]] and ~moo~ using
+- ~avro-schema.jsonnet~ for codegen with [[https://avro.apache.org/docs/current/api/cpp/html/index.html][Avro CPP]] or just ~moo~ and for using
   serialization provided by [[https://github.com/nlohmann/json][~nlohmann::json~]].
 - ~json-schema.jsonnet~ for object validation via [[https://json-schema.org/][JSON Schema]] and ~moo~.
 
@@ -222,17 +222,10 @@ Commands:
   receive *dynamically or statically typed* configuration objects.
 - tech opinions :: ERS for exceptions, ~nlohmann::json~ for dynamic typed
   intermediate data representation.
-- non-trival demo :: Avro for C++ config ~struct~ types, component-based
-  mocked framework and main application ([[https://brettviren.github.io/cogs/demo.html][link to doc]]).
+- non-trival demo :: ~moo~ generated C++ config ~struct~ types and
+  serialization, component-based mocked framework and main application
+  ([[https://brettviren.github.io/cogs/demo.html][link to doc]]).
 
-\vfill
-
-\scriptsize
-
-Some current elements of demo are general and will be factored into
-\cogs or \moo.
-
-Choice of Avro is for demo only, \cogs does not require it.
 
 * \cogs configuration stream
 
@@ -304,7 +297,7 @@ struct Configurable : virtual public ConfigurableBase {
 };
 #+end_src
 
-In the \cogs demo, the ~struct~ is generated from *schema* via Avro.
+In the \cogs demo, the ~struct~ is generated from *schema* via ~moo~.
 
 
 * \cogs demo stream
@@ -407,8 +400,9 @@ schema data structures showing where validation failed.
 - Integration with DUNE FD DAQ ~appfmk~ may include:
   - a "stream manager" hooking into appfmk factory
 
-- A choice of RPC for larger CCM will influence replacement
-  of Avro (eg with Protobuf, Cap'N Proto, etc). 
+- A choice of RPC for larger CCM may influence replacement of ~moo~
+  generated config structs and serialization (eg with Protobuf, Cap'N
+  Proto, etc).
 
 - Understand if \cogs and \moo approach can help with connecting CCM
   RPC to ~appfmk~.  
@@ -423,31 +417,4 @@ schema data structures showing where validation failed.
 \Huge $\mathcal{FIN}$
 #+end_center
 
-* Problem with function-based schema definition
 
-The functional programming with ~schema.*~ functions is rigorous and
-flexible but problematic:
-
-- functional programming is not "normal" for many
-
-- abstracting application-level patterns must carry the closure
-
-- effectively forces use of Jsonnet to define schema
-
-- does not exploit Jsonnet's simple and powerful inheritance idioms
-
-* Post-demo revisions for meta-schema:
-
-- define an /abstract schema vocabulary/
-  - conceptually, a union of Avro, JSON Schema, Protobuf
-
-- define a JSON Schema (in Jsonnet!) which will validate /user schema objects/
-  against this abstract vocabulary
-
-- develop /domain translation functions/ which convert /user schema
-  objects/ to /domain schema objects/ 
-  - eg: to an Avro schema object for generation and a JSON Schema
-    object for validation
-
-As a side-effect, user schema could be defined in JSON, XML, YAML,
-INI, as well as Jsonnet.

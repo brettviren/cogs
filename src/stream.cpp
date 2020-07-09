@@ -79,14 +79,18 @@ cogs::stream_p cogs::make_stream(std::string uri)
     auto dot = uri.find_last_of(".");
     auto sep = uri.find("://");
 
-    if (dot == std::string::npos or sep == std::string::npos) {
+    if (dot == std::string::npos) {
         throw cogs::unsupported_uri(ERS_HERE, uri);
     }
 
     std::string ext = uri.substr(dot+1);
     std::string scheme = "";
     std::string fname = uri;
-    if (sep != std::string::npos) {
+    if (sep == std::string::npos) {
+        scheme = "file";
+        fname = uri;
+    }
+    else {
         scheme = uri.substr(0, sep);
         fname = uri.substr(sep+3);
     }

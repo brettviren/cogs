@@ -13,10 +13,8 @@ def options(opt):
                    help='Set to ERS install area')
     opt.add_option('--with-nljs', default=None,
                    help='Point nlohmann json install area')
-    opt.add_option('--with-avro', default=None,
-                   help='Set to AVRO install area')
     opt.add_option('--with-boost', default=None,
-                   help='Set to BOOST install area (only needed by Avro)')
+                   help='Set to BOOST install area (needed by ERS)')
     
 def configure(cfg):
     cfg.load('compiler_cxx')
@@ -44,19 +42,6 @@ def configure(cfg):
               header='ers/ers.h', lib=['ers','ErsBaseStreams'],
               use='ERS', uselib_store='ERS', mandatory=True)
 
-    ## AVRO
-    avro = getattr(cfg.options, 'with_avro',None)
-    if avro:
-        setattr(cfg.env, 'PATH_AVRO', [osp.join(avro, 'bin')]);
-        setattr(cfg.env, 'RPATH_AVRO', [osp.join(avro, 'lib')]);
-        setattr(cfg.env, 'LIBPATH_AVRO', [osp.join(avro, 'lib')]);
-        setattr(cfg.env, 'INCLUDES_AVRO', [osp.join(avro, 'include')]);
-    cfg.check(features='cxx cxxprogram', define_name='HAVE_AVRO',
-              header='avro/Config.hh', lib=['avrocpp'],
-              use='AVRO', uselib_store='AVRO', mandatory=False)
-    cfg.find_program('avrogencpp', var='AVROGENCPP', use='AVRO',
-                     mandatory=False)
-
     ## Boost is not needed directly by cogs but ERS needs it.
     boost = getattr(cfg.options, 'with_boost', None)
     if boost:
@@ -71,11 +56,6 @@ def configure(cfg):
 
     cfg.write_config_header('config.hpp')
 
-    if 'HAVE_AVRO' in cfg.env:
-        print("Avro found, will build demo")
-    else:
-        print("No Avro found, will NOT build demo")
-        
 
 def build(bld):
     bld.recurse("test")
@@ -96,6 +76,4 @@ def build(bld):
     from waflib.Tools import waf_unit_test
     bld.add_post_fun(waf_unit_test.summary)
 
-
-    if 'HAVE_AVRO' in bld.env:
-        bld.recurse("demo")
+    bld.recurse("demo")

@@ -3,14 +3,12 @@ digraph deps {
         node[shape=box]
         ERS
         NLJS[label="NLJS\n(json.hpp)"]
-        {rank=same; AVRO; cogs; moo}
+        {rank=same; cogs; moo}
         cogs[label="libcogs"]
         ERS->BOOST
-        AVRO->BOOST
         cogs->ERS
         cogs->NLJS
         "cogs-demo"->cogs
-        "cogs-demo"->AVRO
         "cogs-demo"->moo[style=dashed,label="for code\nregen"]
         moo->Python
 }

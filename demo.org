@@ -47,16 +47,9 @@ This section describes issues about building the demo code.
    :CUSTOM_ID: prereq
    :END:
 
-In addition to what ~cogs~ requires, the demo requires:
+In addition to what ~cogs~ library requires, the demo requires:
 
-- Avro CPP library and headers
-
-The generated demo code is committed to the repository.  To regenerate
-it requires additionally:
-
-- ~avrogencpp~ from Avro CPP package
-
-- ~moo~ Python program from [[https://github.com/brettviren/moo][moo]].
+- ~moo~ Python program from [[https://github.com/brettviren/moo][moo]] (only to re-codegen)
 
 ** Compile
    :PROPERTIES:
@@ -68,8 +61,7 @@ With prerequisites satisfied, the demo builds with the ~cogs~ library.  For exam
 #+begin_example
 waf configure --prefix=$(pwd)/install \
     --with-nljs=$HOME/opt/nljs \
-    --with-ers=$HOME/opt/ers \
-    --with-avro=$HOME/opt/avro
+    --with-ers=$HOME/opt/ers 
 waf install
 #+end_example
 
@@ -229,102 +221,40 @@ distributed network discovery.
   :CUSTOM_ID: codegen
   :END:
 
-This section provides a tour of the types of code generation commands
-used to produce the bulk of the demo's code and configuration.  The
-tour focuses on the [[file:demo/generate.sh][generate.sh]] script.  This script runs its commands
-from the [[file:demo/][demo/]] directory and that should be taken into consideration
-when reading excerpts of the script which are shown below.
+This section provides a tour of code generation part of the demo.  The
+tour focuses on the short [[file:demo/generate.sh][generate.sh]] script.  This script runs its
+commands from the [[file:demo/][demo/]] directory and that should be taken into
+consideration when reading excerpts of the script which are shown
+below.
 
-** C++ configuration types 
+** Generating C++ 
    :PROPERTIES:
-   :CUSTOM_ID: gen-avro
+   :CUSTOM_ID: gen-struct
    :END:
 
 User code should not be burdened with validating and interpreting a
-configuration byte stream or even a dynamic C++ object like
+configuration byte stream or even interpreting dynamic C++ object like
 ~nlohman::json~.  Instead, with ~cogs~ the user code receives a fully
 typed C++ ~struct~, thus guaranteeing at least valid object structure.
 
-A configuration ~struct~ is produced in this demo using Avro CPP code
-generator.  It consumes Avro schema files which are produced from the
-demo's Jsonnet model in [[file:demo/demo-avro.jsonnet][demo-avro.jsonnet]] using the ~moo~ tool:
+The code for a ~struct~ and its serialization methods is generated from
+an application schema realized with the Avro domain schema and a few
+extra bits of information.  This information for the demo's "node",
+"comp" and "head" application schema is brought together in the short
+file [[file:demo/demo-codegen.jsonnet][demo-codegen.jsonnet]] included here:
 
-#+call: grep("Compiling Avro", "demo/generate.sh", 5) :wrap "src shell"
+#+include: demo/demo-codegen.jsonnet src jsonnet
 
-#+RESULTS:
-#+begin_src shell
-echo "Compiling Avro schema files"
-moo compile -m . demo-avro.jsonnet
-echo "Generating Avro code"
-for n in *_avro.json; do
-    avrogencpp -n democfg -i $n -o $(basename $n .json).hpp && rm $n
-done     
-#+end_src
+To produce the set of six header files (one for structs and one for
+their serialization for each application schema) one runs:
 
-one resulting file is at [[file:demo/node_avro.hpp][node_avro.hpp]].
-
-Note, we must give the C++ ~namespace~ on this command line.  It is also
-used elsewhere and is a case where some of the model "leaks" out of
-the otherwise "sole source of truth", the Jsonnet.  Work is needed to
-correct this.
-
-The content of Jsonnet file [[file:demo/demo-avro.jsonnet][demo-avro.jsonnet]] is:
-
-#+include: demo/demo-avro.jsonnet src jsonnet
-
-Compiling to Avro schema is particularly easy since that format is
-JSON.  The ~moc.avro~ "base schema" provided to the application schema
-functions, eg ~node()~ cause Avro JSON to be output.  Instead passing
-another base schema, eg, ~moc.pbuf~, would produce a data structure
-compliant with Protobuf schema which may the be applied to a suitable
-template file in order to produce a Protobuf ~.proto~ file which can be
-compiled to Protobuf C++ classes.  We'll see just this pattern in the
-next section.
-
-For these and other reasons, future work may revisit the use of Avro
-for providing the configuration ~struct~ definition.  The demo does not
-actually use Avro serialization (next section) which would make a
-change easy.
-
-** Serialization code
-   :PROPERTIES:
-   :CUSTOM_ID: gen-nljs
-   :END:
-
-While a ~cogs~ provides built-in support for JSON array or JSON stream
-files, ~cogs~ streams are ultimately some form of byte streams.  An
-intermediate representation of configuration information is provided
-in the form of a ~cogs::object~ which is simply a ~nlohmann::json~.  This
-makes implementing the built-in JSON-based ~cogs::Streams~ rather
-trivial while also provides a general purpose intermediary
-representation which isolates low and high levels of ~cogs~.  The
-~nlohmann::json~ package is further exploited by generating ~to_json()~
-and ~from_json()~ functions for every C++ type so that conversion
-between a ~cogs::object~ and its corresponding C++ ~struct~ (generated as
-above) is straight-forward.
-
-This C++ code is generated as:
-
-#+call: grep("Rendering", "demo/generate.sh", 1) :wrap "src shell"
+#+call: grep("Codegen", "demo/generate.sh", 1) :wrap "src shell"
 
 #+RESULTS:
 #+begin_src shell
-echo "Rendering nlohmann::json serialization code"
-moo render-many demo-render.jsonnet
+echo "Codegen for structs and serialization"
+moo render-many demo-codegen.jsonnet
 #+end_src
-
-The [[file:demo/demo-render.jsonnet][demo-render.jsonnet]] file holds:
-
-#+include: demo/demo-render.jsonnet src jsonnet
-
-It is somewhat similar to ~demo-avro.jsonnet~ shown above and even uses
-the same "base schema" as used to generate Avro schema.  However,
-instead of providing Avro schema files which must be post-processed by
-~avrogencpp~, it provides information that may be directly consumed and
-applied against templates by the ~moo~ tool in order to produce all C++
-code files in one go.  The generated NLJS C++ file for a "node" is at
-[[file:demo/node_nljs.hpp][~node_nljs.hpp~]]
-
 
 ** Configuration stream
    :PROPERTIES:
