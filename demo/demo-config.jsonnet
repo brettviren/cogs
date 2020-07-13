@@ -27,6 +27,7 @@ local compdef(ident, type_name, portlist, cfg="") = {
 
 // Component-level configuration objects 
 local source(ntosend) = { ntosend: ntosend};
+local mysource(p, src) = { myparam: p } + src;
 
 local node_schema = import "node-schema.jsonnet";
 local comp_schema = import "comp-schema.jsonnet";
@@ -50,13 +51,13 @@ local schema = {
 
     // A test model
     model: [
-        head("demoSource", "mycomp_source1"),
-        source(42),
+        head("demoMySource", "mycomp_source1"),
+        mysource(24, source(42)),
 
         head("demoNode", "mynode_inst1"),
         node("mynode1",
              ports=[portdef("src",[link("bind","tcp://127.0.0.1:5678")])],
-             comps=[compdef("mycomp_source1", "demoSource", ["src"])]),
+             comps=[compdef("mycomp_source1", "demoMySource", ["src"])]),
     ],
 
     // element by element schema

@@ -5,7 +5,8 @@
 
 namespace democfg {
 
-    struct ConfigHeader {
+
+    struct ConfigHeader{
         std::string impname;
         std::string instname;
     };

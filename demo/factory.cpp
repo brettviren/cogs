@@ -22,14 +22,14 @@ std::string demo::factory_register_base(std::string imp_name, maker_f maker)
     return imp_name;
 }
 
-cogs::ConfigurableBase* demo::configurable(std::string imp_name, std::string inst_name)
+cogs::Configurable* demo::configurable(std::string imp_name, std::string inst_name)
 {
     auto& mr = maker_repo();
     if (mr.find(imp_name) == mr.end()) {
         throw demo::unknown_implementation(ERS_HERE, imp_name);
     }
 
-    static std::map<std::string, cogs::ConfigurableBase*> made;
+    static std::map<std::string, cogs::Configurable*> made;
     auto ret = made[inst_name];
     if (ret) { return ret; }
 

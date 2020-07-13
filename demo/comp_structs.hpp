@@ -4,8 +4,14 @@
 
 namespace democfg {
 
-    struct Source {
+
+    struct Source{
         int ntosend;
+    };
+
+
+    struct MySource : public Source {
+        int myparam;
     };
 
 

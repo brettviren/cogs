@@ -1,9 +1,10 @@
 [
     {
-        "impname": "demoSource",
+        "impname": "demoMySource",
         "instname": "mycomp_source1"
     },
     {
+        "myparam": 24,
         "ntosend": 42
     },
     {
@@ -18,7 +19,7 @@
                 "portlist": [
                     "src"
                 ],
-                "type_name": "demoSource"
+                "type_name": "demoMySource"
             }
         ],
         "ident": "mynode1",

@@ -13,10 +13,8 @@ namespace democfg {
     // Converters for ConfigHeader
     // 
     inline void to_json(json& j, const ConfigHeader& obj) {
-        j = json{
-            {"impname", obj.impname},
-            {"instname", obj.instname}
-        };
+        j["impname"] = obj.impname;
+        j["instname"] = obj.instname;
     }
     inline void from_json(const json& j, ConfigHeader& obj) {
         j.at("impname").get_to(obj.impname);    

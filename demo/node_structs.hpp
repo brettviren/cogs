@@ -11,24 +11,28 @@ namespace democfg {
         connect,
     };
 
-    struct Link {
+
+    struct Link{
         LinkType linktype;
         std::string address;
     };
 
-    struct Port {
+
+    struct Port{
         std::string ident;
         std::vector<Link> links;
     };
 
-    struct Comp {
+
+    struct Comp{
         std::string ident;
         std::string type_name;
         std::vector<std::string> portlist;
         std::string config;
     };
 
-    struct Node {
+
+    struct Node{
         std::string ident;
         std::vector<Port> portdefs;
         std::vector<Comp> compdefs;

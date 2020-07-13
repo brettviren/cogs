@@ -16,12 +16,12 @@
 namespace demo {
 
     // The factory method: 
-    cogs::ConfigurableBase* configurable(std::string imp_name, std::string inst_name);
+    cogs::Configurable* configurable(std::string imp_name, std::string inst_name);
     demo::PortuserBase* portuser(std::string imp_name, std::string inst_name);
 
 
     // Ignore the rest of this junk.
-    using maker_f = std::function<cogs::ConfigurableBase*()>;
+    using maker_f = std::function<cogs::Configurable*()>;
     std::string factory_register_base(std::string imp_name, maker_f maker);
     template<typename TYPE>
     std::string factory_register(std::string imp_name) {
@@ -31,6 +31,6 @@ namespace demo {
 }
 
 #define DEMO_REGISTER_COMPONENT(IMP_NAME, TYPE) \
-    static std::string dummy = demo::factory_register<TYPE>(IMP_NAME)
+    static std::string dummy_ ## IMP_NAME = demo::factory_register<TYPE>( #IMP_NAME )
 
 #endif

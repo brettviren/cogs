@@ -8,7 +8,7 @@
 
 namespace demo {
 
-    class Node : public cogs::Configurable<democfg::Node> {
+    class Node : public cogs::Configurable {
       public:
         Node() {
             ERS_INFO("Node:\t\tconstructing");
@@ -17,7 +17,8 @@ namespace demo {
             ERS_INFO("Node:\t\tdestructing");
         }
 
-        virtual void configure(democfg::Node&& cfg) {
+        virtual void configure(cogs::object obj) {
+            auto cfg = cogs::cfgobj<democfg::Node>(obj);
             ERS_INFO("Node:\t\t" << cfg.ident);
 
             for (auto& p : cfg.portdefs) {
@@ -58,4 +59,4 @@ namespace demo {
 
 }
 
-DEMO_REGISTER_COMPONENT("demoNode", demo::Node);
+DEMO_REGISTER_COMPONENT(demoNode, demo::Node);
