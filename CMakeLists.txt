@@ -7,14 +7,7 @@ include(DAQ)
 daq_setup_environment()
 
 find_package(ers REQUIRED)
-
-find_package(nlohmann_json 3.8.0 )
-
-if(NOT ${nlohmann_json_FOUND})
-  message("nlohmann_json NOT FOUND! Downloading single-header from GitHub!")
-  file(DOWNLOAD https://github.com/nlohmann/json/raw/v3.8.0/single_include/nlohmann/json.hpp nlohmann/json.hpp)
-  include_directories(${CMAKE_BINARY_DIR})
-endif()
+find_package(nlohmann_json REQUIRED )
 
 # Can delete this include_directories line when "./inc" gets renamed "./include"
 include_directories( ./inc )
@@ -24,7 +17,7 @@ include_directories( ./inc )
 daq_point_build_to( src )
 
 add_library(cogs src/stream.cpp)
-target_link_libraries(cogs ers::ers)
+target_link_libraries(cogs ers::ers nlohmann_json::nlohmann_json)
 target_include_directories(cogs PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/inc>  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}> )
 
 ##############################################################################
@@ -32,6 +25,7 @@ daq_point_build_to( demo )
 
 add_executable(cogs-demo demo/cogs-demo.cpp demo/comp.cpp  demo/factory.cpp  demo/node.cpp)
 target_link_libraries(cogs-demo cogs)
+
 
 install(FILES       demo/generate.sh demo/clean.sh 
         DESTINATION ./demo 
